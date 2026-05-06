@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    Int      @id @default(autoincrement())
+  slug                  String   @unique @default(uuid())
+  email                 String   @unique
+  passwordHash          String
+  refreshTokenHash      String?
+  refreshTokenExpiresAt DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  tasks         Task[]  @relation("TaskOwner")
+  createdTasks  Task[]  @relation("TaskCreator")
+  updatedTasks  Task[]  @relation("TaskUpdater")
+  spaces        Space[]        @relation("SpaceOwner")
+  createdSpaces Space[]        @relation("SpaceCreator")
+  updatedSpaces Space[]        @relation("SpaceUpdater")
+  spaceMembers  SpaceMember[]
+  notifications Notification[]
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique
+  slug        String   @unique
+  space       String?
+  workType    String?
+  status      String   @default("To do")
+  summary     String
+  description String?
+  assignee    String?
+  reporter    String?
+  priority    String?
+  labels      String?
+  dueDate     DateTime?
+  startDate   DateTime?
+  category    String?
+  team        String?
+  subtasks    Json?
+  userId      Int
+  createdBy   Int
+  updatedBy   Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user     User @relation("TaskOwner", fields: [userId], references: [id])
+  creator  User @relation("TaskCreator", fields: [createdBy], references: [id])
+  updater  User @relation("TaskUpdater", fields: [updatedBy], references: [id])
+}
+
+model Space {
+  id              Int      @id @default(autoincrement())
+  slug            String   @unique
+  name            String
+  key             String   @unique
+  type            String?
+  app             String?
+  managed         String?
+  access          String?
+  lead            String?
+  category        String?
+  owner           String?
+  defaultAssignee String?
+  userId          Int
+  createdBy       Int
+  updatedBy       Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user     User          @relation("SpaceOwner", fields: [userId], references: [id])
+  creator  User          @relation("SpaceCreator", fields: [createdBy], references: [id])
+  updater  User          @relation("SpaceUpdater", fields: [updatedBy], references: [id])
+  members  SpaceMember[]
+  invites  SpaceInvite[]
+}
+
+model SpaceMember {
+  id        Int      @id @default(autoincrement())
+  spaceId   Int
+  userId    Int
+  role      String   @default("member")
+  createdAt DateTime @default(now())
+
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([spaceId, userId])
+}
+
+model SpaceInvite {
+  id          Int      @id @default(autoincrement())
+  spaceId     Int
+  email       String
+  token       String   @unique
+  status      String   @default("pending")
+  role        String   @default("member")
+  createdBy   Int
+  acceptedBy  Int?
+  createdAt   DateTime @default(now())
+  acceptedAt  DateTime?
+  expiresAt   DateTime?
+
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@unique([spaceId, email])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  type      String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+}
