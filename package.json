@@ -18,6 +18,7 @@
     "db:migrate:init": "prisma migrate dev --name init",
     "db:reset": "prisma migrate reset --force",
     "db:generate": "prisma generate",
+    "db:seed": "prisma db seed",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

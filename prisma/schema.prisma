@@ -12,6 +12,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum SettingKind {
+  ASSET_MODEL
+  CATEGORY
+  MANUFACTURER
+  SUPPLIER
+  DEPARTMENT
+  LOCATION
+  COMPANY
+}
+
 model User {
   id                    Int      @id @default(autoincrement())
   slug                  String   @unique @default(uuid())
@@ -25,10 +35,6 @@ model User {
   tasks         Task[]  @relation("TaskOwner")
   createdTasks  Task[]  @relation("TaskCreator")
   updatedTasks  Task[]  @relation("TaskUpdater")
-  spaces        Space[]        @relation("SpaceOwner")
-  createdSpaces Space[]        @relation("SpaceCreator")
-  updatedSpaces Space[]        @relation("SpaceUpdater")
-  spaceMembers  SpaceMember[]
   notifications Notification[]
 }
 
@@ -61,64 +67,6 @@ model Task {
   updater  User @relation("TaskUpdater", fields: [updatedBy], references: [id])
 }
 
-model Space {
-  id              Int      @id @default(autoincrement())
-  slug            String   @unique
-  name            String
-  key             String   @unique
-  type            String?
-  app             String?
-  managed         String?
-  access          String?
-  lead            String?
-  category        String?
-  owner           String?
-  defaultAssignee String?
-  userId          Int
-  createdBy       Int
-  updatedBy       Int
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  user     User          @relation("SpaceOwner", fields: [userId], references: [id])
-  creator  User          @relation("SpaceCreator", fields: [createdBy], references: [id])
-  updater  User          @relation("SpaceUpdater", fields: [updatedBy], references: [id])
-  members  SpaceMember[]
-  invites  SpaceInvite[]
-}
-
-model SpaceMember {
-  id        Int      @id @default(autoincrement())
-  spaceId   Int
-  userId    Int
-  role      String   @default("member")
-  createdAt DateTime @default(now())
-
-  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([spaceId, userId])
-}
-
-model SpaceInvite {
-  id          Int      @id @default(autoincrement())
-  spaceId     Int
-  email       String
-  token       String   @unique
-  status      String   @default("pending")
-  role        String   @default("member")
-  createdBy   Int
-  acceptedBy  Int?
-  createdAt   DateTime @default(now())
-  acceptedAt  DateTime?
-  expiresAt   DateTime?
-
-  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
-
-  @@index([email])
-  @@unique([spaceId, email])
-}
-
 model Notification {
   id        Int      @id @default(autoincrement())
   userId    Int
@@ -130,4 +78,163 @@ model Notification {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, read])
+}
+
+model SettingRecord {
+  id          Int         @id @default(autoincrement())
+  kind        SettingKind
+  name        String
+  slug        String
+  code        String?
+  description String?
+  isActive    Boolean     @default(true)
+  createdBy   Int?
+  updatedBy   Int?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@unique([kind, slug])
+  @@unique([kind, name])
+  @@index([kind, isActive])
+}
+
+model Company {
+  id          Int          @id @default(autoincrement())
+  slug        String       @unique @default(uuid())
+  name        String
+  phone       String?
+  fax         String?
+  email       String?
+  logo        String?
+  notes       String?      @db.Text
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  locations   Location[]
+  departments Department[]
+}
+
+model Category {
+  id                  Int          @id @default(autoincrement())
+  slug                String       @unique @default(uuid())
+  name                String
+  type                String       // Asset, Accessory, Consumable, Component, License
+  eula                String?      @db.LongText
+  useDefaultEula      Boolean      @default(true)
+  requireConfirmation Boolean      @default(false)
+  emailNotification   Boolean      @default(false)
+  image               String?
+  notes               String?      @db.Text
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  assetModels         AssetModel[]
+}
+
+model Manufacturer {
+  id                Int          @id @default(autoincrement())
+  slug              String       @unique @default(uuid())
+  name              String
+  url               String?
+  supportUrl        String?
+  warrantyLookupUrl String?
+  supportPhone      String?
+  supportEmail      String?
+  image             String?
+  notes             String?      @db.Text
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  assetModels       AssetModel[]
+}
+
+model Supplier {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique @default(uuid())
+  name        String
+  contactName String?
+  phone       String?
+  fax         String?
+  email       String?
+  url         String?
+  address     String?
+  city        String?
+  state       String?
+  country     String?
+  zip         String?
+  image       String?
+  notes       String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Location {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique @default(uuid())
+  name      String
+  parentId  Int?
+  parent    Location? @relation("LocationHierarchy", fields: [parentId], references: [id])
+  children  Location[] @relation("LocationHierarchy")
+  managerId Int?
+  companyId Int?
+  company   Company?  @relation(fields: [companyId], references: [id])
+  phone     String?
+  fax       String?
+  currency  String?
+  address   String?
+  address2  String?
+  city      String?
+  state     String?
+  country   String?
+  zip       String?
+  image     String?
+  notes     String?   @db.Text
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  departments Department[]
+}
+
+model Department {
+  id         Int      @id @default(autoincrement())
+  slug       String   @unique @default(uuid())
+  name       String
+  companyId  Int?
+  company    Company? @relation(fields: [companyId], references: [id])
+  phone      String?
+  fax        String?
+  managerId  Int?
+  locationId Int?
+  location   Location? @relation(fields: [locationId], references: [id])
+  image      String?
+  notes      String?   @db.Text
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model AssetModel {
+  id                 Int          @id @default(autoincrement())
+  slug               String       @unique @default(uuid())
+  name               String
+  categoryId         Int
+  category           Category     @relation(fields: [categoryId], references: [id])
+  manufacturerId     Int
+  manufacturer       Manufacturer @relation(fields: [manufacturerId], references: [id])
+  modelNumber        String?
+  depreciationId     Int?
+  minQty             Int?
+  requireSerialNumber Boolean      @default(false)
+  eolMonths          Int?
+  fieldsetId         Int?
+  image              String?
+  notes              String?      @db.Text
+  isRequestable      Boolean      @default(false)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+}
+
+model StatusLabel {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique @default(uuid())
+  name      String
+  type      String   // Deployable, Undeployable, Archived, Pending
+  notes     String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

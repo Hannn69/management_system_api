@@ -4,18 +4,28 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { TasksModule } from './tasks/tasks.module';
-import { SpacesModule } from './spaces/spaces.module';
-import { NotificationsModule } from './notifications/notifications.module';
+import { AssetModelsModule } from './asset-models/asset-models.module';
+import { CategoriesModule } from './categories/categories.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { ManufacturersModule } from './manufacturers/manufacturers.module';
+import { SuppliersModule } from './suppliers/suppliers.module';
+import { DepartmentsModule } from './departments/departments.module';
+import { LocationsModule } from './locations/locations.module';
+import { CompaniesModule } from './companies/companies.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
     AuthModule,
-    TasksModule,
-    SpacesModule,
-    NotificationsModule,
+    AssetModelsModule,
+    CategoriesModule,
+    DashboardModule,
+    ManufacturersModule,
+    SuppliersModule,
+    DepartmentsModule,
+    LocationsModule,
+    CompaniesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -13,9 +13,14 @@ const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const auth_module_1 = require("./auth/auth.module");
 const prisma_module_1 = require("./prisma/prisma.module");
-const tasks_module_1 = require("./tasks/tasks.module");
-const spaces_module_1 = require("./spaces/spaces.module");
-const notifications_module_1 = require("./notifications/notifications.module");
+const asset_models_module_1 = require("./asset-models/asset-models.module");
+const categories_module_1 = require("./categories/categories.module");
+const dashboard_module_1 = require("./dashboard/dashboard.module");
+const manufacturers_module_1 = require("./manufacturers/manufacturers.module");
+const suppliers_module_1 = require("./suppliers/suppliers.module");
+const departments_module_1 = require("./departments/departments.module");
+const locations_module_1 = require("./locations/locations.module");
+const companies_module_1 = require("./companies/companies.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -25,9 +30,14 @@ exports.AppModule = AppModule = __decorate([
             config_1.ConfigModule.forRoot({ isGlobal: true }),
             prisma_module_1.PrismaModule,
             auth_module_1.AuthModule,
-            tasks_module_1.TasksModule,
-            spaces_module_1.SpacesModule,
-            notifications_module_1.NotificationsModule,
+            asset_models_module_1.AssetModelsModule,
+            categories_module_1.CategoriesModule,
+            dashboard_module_1.DashboardModule,
+            manufacturers_module_1.ManufacturersModule,
+            suppliers_module_1.SuppliersModule,
+            departments_module_1.DepartmentsModule,
+            locations_module_1.LocationsModule,
+            companies_module_1.CompaniesModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
