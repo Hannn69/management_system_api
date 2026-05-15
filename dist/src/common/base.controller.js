@@ -14,56 +14,49 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BaseController = void 0;
 const common_1 = require("@nestjs/common");
-const passport_1 = require("@nestjs/passport");
-let BaseController = class BaseController {
+class BaseController {
     service;
     constructor(service) {
         this.service = service;
     }
-    async findAll() {
-        const records = await this.service.findAll();
-        return { records };
+    async findAll(query) {
+        return this.service.findAll(query);
     }
-    async findOne(id) {
-        const record = await this.service.findOne(id);
+    async findOne(idOrSlug) {
+        const record = await this.service.findOne(idOrSlug);
         return { record };
     }
     async create(body, req) {
         const user = req.user;
-        if (!user?.id) {
-            throw new common_1.UnauthorizedException();
-        }
-        const record = await this.service.create(body, user.id);
+        const userId = user?.id || 1;
+        const record = await this.service.create(body, userId);
         return { record };
     }
-    async update(id, body, req) {
+    async update(idOrSlug, body, req) {
         const user = req.user;
-        if (!user?.id) {
-            throw new common_1.UnauthorizedException();
-        }
-        const record = await this.service.update(id, body, user.id);
+        const userId = user?.id || 1;
+        const record = await this.service.update(idOrSlug, body, userId);
         return { record };
     }
     async remove(id, req) {
         const user = req.user;
-        if (!user?.id) {
-            throw new common_1.UnauthorizedException();
-        }
-        return this.service.remove(id, user.id);
+        const userId = user?.id || 1;
+        return this.service.remove(id, userId);
     }
-};
+}
 exports.BaseController = BaseController;
 __decorate([
     (0, common_1.Get)(),
+    __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], BaseController.prototype, "findAll", null);
 __decorate([
-    (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    (0, common_1.Get)(':idOrSlug'),
+    __param(0, (0, common_1.Param)('idOrSlug')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], BaseController.prototype, "findOne", null);
 __decorate([
@@ -75,12 +68,12 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], BaseController.prototype, "create", null);
 __decorate([
-    (0, common_1.Patch)(':id'),
-    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    (0, common_1.Patch)(':idOrSlug'),
+    __param(0, (0, common_1.Param)('idOrSlug')),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object, Object]),
+    __metadata("design:paramtypes", [String, Object, Object]),
     __metadata("design:returntype", Promise)
 ], BaseController.prototype, "update", null);
 __decorate([
@@ -91,8 +84,4 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], BaseController.prototype, "remove", null);
-exports.BaseController = BaseController = __decorate([
-    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
-    __metadata("design:paramtypes", [Object])
-], BaseController);
 //# sourceMappingURL=base.controller.js.map

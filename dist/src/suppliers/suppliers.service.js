@@ -11,12 +11,53 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SuppliersService = void 0;
 const common_1 = require("@nestjs/common");
-const client_1 = require("@prisma/client");
-const settings_base_service_1 = require("../common/settings-base.service");
+const base_service_1 = require("../common/base.service");
 const prisma_service_1 = require("../prisma/prisma.service");
-let SuppliersService = class SuppliersService extends settings_base_service_1.SettingsBaseService {
+const slugify_1 = require("../common/utils/slugify");
+let SuppliersService = class SuppliersService extends base_service_1.BaseService {
+    prisma;
     constructor(prisma) {
-        super(prisma, client_1.SettingKind.SUPPLIER);
+        super(prisma, 'supplier');
+        this.prisma = prisma;
+    }
+    async findAll(query = {}) {
+        const page = Number(query.page) || 1;
+        const limit = Number(query.limit) || 10;
+        const search = query.search || '';
+        const where = {};
+        if (search) {
+            where.OR = [
+                { name: { contains: search } },
+                { city: { contains: search } },
+            ];
+        }
+        const [records, total] = await Promise.all([
+            this.prisma.supplier.findMany({
+                where,
+                include: {
+                    _count: {
+                        select: {
+                            assets: true,
+                        },
+                    },
+                },
+                skip: (page - 1) * limit,
+                take: limit,
+            }),
+            this.prisma.supplier.count({ where }),
+        ]);
+        const formatted = records.map((r) => ({
+            ...r,
+            assets: r._count.assets,
+            accessories: 0,
+            licenses: 0,
+            components: 0,
+            consumables: 0,
+        }));
+        return { records: formatted, total };
+    }
+    async create(data, userId) {
+        return super.create(data, userId, { slug: (0, slugify_1.slugify)(data.name) });
     }
 };
 exports.SuppliersService = SuppliersService;

@@ -1,12 +1,21 @@
-import { Controller } from '@nestjs/common';
-import { SettingRecord } from '@prisma/client';
+import { Controller, Get, Query } from '@nestjs/common';
+import { Manufacturer } from '@prisma/client';
 import { BaseController } from '../common/base.controller';
-import { CreateSettingDto, UpdateSettingDto } from '../common/dto/settings.dto';
+import { CreateManufacturerDto, UpdateManufacturerDto } from '../common/dto/entity.dto';
 import { ManufacturersService } from './manufacturers.service';
 
 @Controller('manufacturers')
-export class ManufacturersController extends BaseController<SettingRecord, CreateSettingDto, UpdateSettingDto> {
+export class ManufacturersController extends BaseController<
+  Manufacturer,
+  CreateManufacturerDto,
+  UpdateManufacturerDto
+> {
   constructor(private readonly manufacturersService: ManufacturersService) {
     super(manufacturersService);
+  }
+
+  @Get()
+  override async findAll(@Query() query: any) {
+    return this.manufacturersService.findAll(query);
   }
 }

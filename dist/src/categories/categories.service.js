@@ -11,12 +11,48 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CategoriesService = void 0;
 const common_1 = require("@nestjs/common");
-const client_1 = require("@prisma/client");
-const settings_base_service_1 = require("../common/settings-base.service");
+const base_service_1 = require("../common/base.service");
 const prisma_service_1 = require("../prisma/prisma.service");
-let CategoriesService = class CategoriesService extends settings_base_service_1.SettingsBaseService {
+const slugify_1 = require("../common/utils/slugify");
+let CategoriesService = class CategoriesService extends base_service_1.BaseService {
+    prisma;
     constructor(prisma) {
-        super(prisma, client_1.SettingKind.CATEGORY);
+        super(prisma, 'category');
+        this.prisma = prisma;
+    }
+    async findAll(query = {}) {
+        const page = Number(query.page) || 1;
+        const limit = Number(query.limit) || 10;
+        const search = query.search || '';
+        const where = {};
+        if (search) {
+            where.name = { contains: search };
+        }
+        const [records, total] = await Promise.all([
+            this.prisma.category.findMany({
+                where,
+                include: {
+                    _count: {
+                        select: {
+                            assetModels: true,
+                        },
+                    },
+                },
+                skip: (page - 1) * limit,
+                take: limit,
+            }),
+            this.prisma.category.count({ where }),
+        ]);
+        const formatted = records.map((r) => ({
+            ...r,
+            qty: r._count.assetModels,
+            sendEmail: r.emailNotification,
+            acceptance: r.requireConfirmation,
+        }));
+        return { records: formatted, total };
+    }
+    async create(data, userId) {
+        return super.create(data, userId, { slug: (0, slugify_1.slugify)(data.name) });
     }
 };
 exports.CategoriesService = CategoriesService;

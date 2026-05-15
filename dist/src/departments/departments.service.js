@@ -11,12 +11,44 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DepartmentsService = void 0;
 const common_1 = require("@nestjs/common");
-const client_1 = require("@prisma/client");
-const settings_base_service_1 = require("../common/settings-base.service");
+const base_service_1 = require("../common/base.service");
 const prisma_service_1 = require("../prisma/prisma.service");
-let DepartmentsService = class DepartmentsService extends settings_base_service_1.SettingsBaseService {
+const slugify_1 = require("../common/utils/slugify");
+let DepartmentsService = class DepartmentsService extends base_service_1.BaseService {
+    prisma;
     constructor(prisma) {
-        super(prisma, client_1.SettingKind.DEPARTMENT);
+        super(prisma, 'department');
+        this.prisma = prisma;
+    }
+    async findAll(query = {}) {
+        const page = Number(query.page) || 1;
+        const limit = Number(query.limit) || 10;
+        const search = query.search || '';
+        const where = {};
+        if (search) {
+            where.name = { contains: search };
+        }
+        const [records, total] = await Promise.all([
+            this.prisma.department.findMany({
+                where,
+                include: {
+                    location: true,
+                },
+                skip: (page - 1) * limit,
+                take: limit,
+            }),
+            this.prisma.department.count({ where }),
+        ]);
+        const formatted = records.map((r) => ({
+            ...r,
+            manager: r.managerId ? `User #${r.managerId}` : 'N/A',
+            location: r.location ? r.location.name : 'N/A',
+            people: 0,
+        }));
+        return { records: formatted, total };
+    }
+    async create(data, userId) {
+        return super.create(data, userId, { slug: (0, slugify_1.slugify)(data.name) });
     }
 };
 exports.DepartmentsService = DepartmentsService;

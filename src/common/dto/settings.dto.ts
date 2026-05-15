@@ -1,9 +1,34 @@
-import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, IsEmail, IsInt } from 'class-validator';
 
 export class CreateSettingDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @IsString()
+  @IsOptional()
+  phone?: string;
+
+  @IsString()
+  @IsOptional()
+  fax?: string;
+
+  @IsString()
+  @IsOptional()
+  email?: string;
+
+  @IsString()
+  @IsOptional()
+  logo?: string;
+
+  @IsString()
+  @IsOptional()
+  notes?: string;
+
+  // Generic fields used by some models
+  @IsString()
+  @IsOptional()
+  type?: string;
 
   @IsString()
   @IsOptional()
@@ -16,6 +41,23 @@ export class CreateSettingDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
+
+  // Relations (optional as IDs)
+  @IsInt()
+  @IsOptional()
+  companyId?: number;
+
+  @IsInt()
+  @IsOptional()
+  locationId?: number;
+
+  @IsInt()
+  @IsOptional()
+  parentId?: number;
+
+  @IsInt()
+  @IsOptional()
+  managerId?: number;
 }
 
 export class UpdateSettingDto {
@@ -25,6 +67,30 @@ export class UpdateSettingDto {
 
   @IsString()
   @IsOptional()
+  phone?: string;
+
+  @IsString()
+  @IsOptional()
+  fax?: string;
+
+  @IsString()
+  @IsOptional()
+  email?: string;
+
+  @IsString()
+  @IsOptional()
+  logo?: string;
+
+  @IsString()
+  @IsOptional()
+  notes?: string;
+
+  @IsString()
+  @IsOptional()
+  type?: string;
+
+  @IsString()
+  @IsOptional()
   code?: string;
 
   @IsString()
@@ -34,14 +100,20 @@ export class UpdateSettingDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
-}
 
-// Keeping this for compatibility if any old code still uses it, though we've refactored most
-export type SettingKindSlug = 
-  | 'asset-models' 
-  | 'categories' 
-  | 'manufacturers' 
-  | 'suppliers' 
-  | 'departments' 
-  | 'locations' 
-  | 'companies';
+  @IsInt()
+  @IsOptional()
+  companyId?: number;
+
+  @IsInt()
+  @IsOptional()
+  locationId?: number;
+
+  @IsInt()
+  @IsOptional()
+  parentId?: number;
+
+  @IsInt()
+  @IsOptional()
+  managerId?: number;
+}

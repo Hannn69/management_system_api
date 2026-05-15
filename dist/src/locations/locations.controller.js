@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LocationsController = void 0;
 const common_1 = require("@nestjs/common");
@@ -19,8 +22,18 @@ let LocationsController = class LocationsController extends base_controller_1.Ba
         super(locationsService);
         this.locationsService = locationsService;
     }
+    async findAll(query) {
+        return this.locationsService.findAll(query);
+    }
 };
 exports.LocationsController = LocationsController;
+__decorate([
+    (0, common_1.Get)(),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], LocationsController.prototype, "findAll", null);
 exports.LocationsController = LocationsController = __decorate([
     (0, common_1.Controller)('locations'),
     __metadata("design:paramtypes", [locations_service_1.LocationsService])

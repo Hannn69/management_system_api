@@ -12,16 +12,32 @@ export abstract class BaseService<T, CreateDto, UpdateDto> {
     protected readonly modelName: string,
   ) {}
 
-  async findAll(where: any = {}): Promise<T[]> {
-    return (this.prisma[this.modelName] as any).findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-    });
+  async findAll(query: any = {}): Promise<{ records: any[]; total: number }> {
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
+    const where = query.where || {};
+
+    const [records, total] = await Promise.all([
+      (this.prisma[this.modelName] as any).findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      (this.prisma[this.modelName] as any).count({ where }),
+    ]);
+
+    return { records, total };
   }
 
-  async findOne(id: number, where: any = {}): Promise<T> {
+  async findOne(idOrSlug: number | string, where: any = {}): Promise<T> {
+    const id = typeof idOrSlug === 'string' ? parseInt(idOrSlug, 10) : idOrSlug;
+    const finalWhere: any = isNaN(id)
+      ? { ...where, slug: idOrSlug }
+      : { ...where, id };
+
     const record = await (this.prisma[this.modelName] as any).findFirst({
-      where: { ...where, id },
+      where: finalWhere,
     });
     if (!record) {
       throw new NotFoundException(`${this.modelName} not found`);
@@ -34,24 +50,21 @@ export abstract class BaseService<T, CreateDto, UpdateDto> {
       data: {
         ...data,
         ...extra,
-        createdBy: userId,
-        updatedBy: userId,
       },
     });
   }
 
   async update(
-    id: number,
+    idOrSlug: number | string,
     data: UpdateDto,
     userId: number,
     where: any = {},
   ): Promise<T> {
-    await this.findOne(id, where);
+    const existing = await this.findOne(idOrSlug, where);
     return (this.prisma[this.modelName] as any).update({
-      where: { id },
+      where: { id: (existing as any).id },
       data: {
         ...(data as any),
-        updatedBy: userId,
       },
     });
   }

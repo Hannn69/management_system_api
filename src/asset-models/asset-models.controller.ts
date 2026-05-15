@@ -1,12 +1,21 @@
-import { Controller } from '@nestjs/common';
-import { SettingRecord } from '@prisma/client';
+import { Controller, Get, Query } from '@nestjs/common';
+import { AssetModel } from '@prisma/client';
 import { BaseController } from '../common/base.controller';
-import { CreateSettingDto, UpdateSettingDto } from '../common/dto/settings.dto';
+import { CreateAssetModelDto, UpdateAssetModelDto } from '../common/dto/entity.dto';
 import { AssetModelsService } from './asset-models.service';
 
 @Controller('asset-models')
-export class AssetModelsController extends BaseController<SettingRecord, CreateSettingDto, UpdateSettingDto> {
+export class AssetModelsController extends BaseController<
+  AssetModel,
+  CreateAssetModelDto,
+  UpdateAssetModelDto
+> {
   constructor(private readonly assetModelsService: AssetModelsService) {
     super(assetModelsService);
+  }
+
+  @Get()
+  override async findAll(@Query() query: any) {
+    return this.assetModelsService.findAll(query);
   }
 }

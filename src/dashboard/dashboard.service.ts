@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { SettingKind } from '@prisma/client';
 
 @Injectable()
 export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getSummary() {
-    const [assetModels, categories, manufacturers, suppliers] = await Promise.all([
-      this.prisma.settingRecord.count({ where: { kind: SettingKind.ASSET_MODEL } }),
-      this.prisma.settingRecord.count({ where: { kind: SettingKind.CATEGORY } }),
-      this.prisma.settingRecord.count({ where: { kind: SettingKind.MANUFACTURER } }),
-      this.prisma.settingRecord.count({ where: { kind: SettingKind.SUPPLIER } }),
+    const [assetModels, categories, manufacturers, suppliers, assets] = await Promise.all([
+      this.prisma.assetModel.count(),
+      this.prisma.category.count(),
+      this.prisma.manufacturer.count(),
+      this.prisma.supplier.count(),
+      this.prisma.asset.count(),
     ]);
 
     return {
@@ -19,9 +19,9 @@ export class DashboardService {
       categories,
       manufacturers,
       suppliers,
-      inventoryTracked: assetModels * 10, // Mocking some value based on real counts
-      openLicenses: categories * 2,
-      accessoriesReady: manufacturers + suppliers,
+      inventoryTracked: assets,
+      openLicenses: 0, // Placeholder
+      accessoriesReady: 0, // Placeholder
       supplyAlerts: 3, // Hardcoded for now
     };
   }

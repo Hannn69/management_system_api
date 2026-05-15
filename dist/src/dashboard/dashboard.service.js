@@ -12,27 +12,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DashboardService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-const client_1 = require("@prisma/client");
 let DashboardService = class DashboardService {
     prisma;
     constructor(prisma) {
         this.prisma = prisma;
     }
     async getSummary() {
-        const [assetModels, categories, manufacturers, suppliers] = await Promise.all([
-            this.prisma.settingRecord.count({ where: { kind: client_1.SettingKind.ASSET_MODEL } }),
-            this.prisma.settingRecord.count({ where: { kind: client_1.SettingKind.CATEGORY } }),
-            this.prisma.settingRecord.count({ where: { kind: client_1.SettingKind.MANUFACTURER } }),
-            this.prisma.settingRecord.count({ where: { kind: client_1.SettingKind.SUPPLIER } }),
+        const [assetModels, categories, manufacturers, suppliers, assets] = await Promise.all([
+            this.prisma.assetModel.count(),
+            this.prisma.category.count(),
+            this.prisma.manufacturer.count(),
+            this.prisma.supplier.count(),
+            this.prisma.asset.count(),
         ]);
         return {
             assetModels,
             categories,
             manufacturers,
             suppliers,
-            inventoryTracked: assetModels * 10,
-            openLicenses: categories * 2,
-            accessoriesReady: manufacturers + suppliers,
+            inventoryTracked: assets,
+            openLicenses: 0,
+            accessoriesReady: 0,
             supplyAlerts: 3,
         };
     }

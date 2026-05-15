@@ -12,14 +12,40 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum SettingKind {
-  ASSET_MODEL
-  CATEGORY
-  MANUFACTURER
-  SUPPLIER
-  DEPARTMENT
-  LOCATION
-  COMPANY
+model Asset {
+  id                Int          @id @default(autoincrement())
+  slug              String       @unique @default(uuid())
+  assetTag          String       @unique
+  name              String?
+  serial            String?
+  modelId           Int
+  model             AssetModel   @relation(fields: [modelId], references: [id])
+  statusId          Int
+  status            StatusLabel  @relation(fields: [statusId], references: [id])
+  companyId         Int?
+  company           Company?     @relation(fields: [companyId], references: [id])
+  locationId        Int?
+  location          Location?    @relation(fields: [locationId], references: [id])
+  supplierId        Int?
+  supplier          Supplier?    @relation(fields: [supplierId], references: [id])
+  checkedOutUserId  Int?
+  checkedOutUser    User?        @relation("AssetCheckedOut", fields: [checkedOutUserId], references: [id])
+  notes             String?      @db.Text
+  image             String?
+  isRequestable     Boolean      @default(false)
+  isByod            Boolean      @default(false)
+  warrantyMonths    Int?
+  expectedCheckin   DateTime?
+  nextAuditDate     DateTime?
+  orderNumber       String?
+  purchaseDate      DateTime?
+  purchaseCost      Decimal?     @db.Decimal(10, 2)
+  eolDate           DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([assetTag])
+  @@index([serial])
 }
 
 model User {
@@ -32,16 +58,17 @@ model User {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
-  tasks         Task[]  @relation("TaskOwner")
-  createdTasks  Task[]  @relation("TaskCreator")
-  updatedTasks  Task[]  @relation("TaskUpdater")
-  notifications Notification[]
+  tasks          Task[]  @relation("TaskOwner")
+  createdTasks   Task[]  @relation("TaskCreator")
+  updatedTasks   Task[]  @relation("TaskUpdater")
+  notifications  Notification[]
+  checkedOutAssets Asset[] @relation("AssetCheckedOut")
 }
 
 model Task {
   id          Int      @id @default(autoincrement())
   key         String   @unique
-  slug        String   @unique
+  slug        String   @unique @default(uuid())
   space       String?
   workType    String?
   status      String   @default("To do")
@@ -69,6 +96,7 @@ model Task {
 
 model Notification {
   id        Int      @id @default(autoincrement())
+  slug      String   @unique @default(uuid())
   userId    Int
   type      String
   message   String
@@ -80,28 +108,10 @@ model Notification {
   @@index([userId, read])
 }
 
-model SettingRecord {
-  id          Int         @id @default(autoincrement())
-  kind        SettingKind
-  name        String
-  slug        String
-  code        String?
-  description String?
-  isActive    Boolean     @default(true)
-  createdBy   Int?
-  updatedBy   Int?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-
-  @@unique([kind, slug])
-  @@unique([kind, name])
-  @@index([kind, isActive])
-}
-
 model Company {
   id          Int          @id @default(autoincrement())
   slug        String       @unique @default(uuid())
-  name        String
+  name        String   @unique
   phone       String?
   fax         String?
   email       String?
@@ -111,6 +121,7 @@ model Company {
   updatedAt   DateTime     @updatedAt
   locations   Location[]
   departments Department[]
+  assets      Asset[]
 }
 
 model Category {
@@ -148,7 +159,7 @@ model Manufacturer {
 model Supplier {
   id          Int      @id @default(autoincrement())
   slug        String   @unique @default(uuid())
-  name        String
+  name        String   @unique
   contactName String?
   phone       String?
   fax         String?
@@ -163,6 +174,7 @@ model Supplier {
   notes       String?  @db.Text
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  assets      Asset[]
 }
 
 model Location {
@@ -189,12 +201,13 @@ model Location {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   departments Department[]
+  assets      Asset[]
 }
 
 model Department {
   id         Int      @id @default(autoincrement())
   slug       String   @unique @default(uuid())
-  name       String
+  name       String   @unique
   companyId  Int?
   company    Company? @relation(fields: [companyId], references: [id])
   phone      String?
@@ -227,6 +240,7 @@ model AssetModel {
   isRequestable      Boolean      @default(false)
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
+  assets             Asset[]
 }
 
 model StatusLabel {
@@ -237,4 +251,5 @@ model StatusLabel {
   notes     String?  @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  assets    Asset[]
 }

@@ -19,15 +19,28 @@ let BaseService = class BaseService {
         this.prisma = prisma;
         this.modelName = modelName;
     }
-    async findAll(where = {}) {
-        return this.prisma[this.modelName].findMany({
-            where,
-            orderBy: { createdAt: 'desc' },
-        });
+    async findAll(query = {}) {
+        const page = Number(query.page) || 1;
+        const limit = Number(query.limit) || 10;
+        const where = query.where || {};
+        const [records, total] = await Promise.all([
+            this.prisma[this.modelName].findMany({
+                where,
+                orderBy: { createdAt: 'desc' },
+                skip: (page - 1) * limit,
+                take: limit,
+            }),
+            this.prisma[this.modelName].count({ where }),
+        ]);
+        return { records, total };
     }
-    async findOne(id, where = {}) {
+    async findOne(idOrSlug, where = {}) {
+        const id = typeof idOrSlug === 'string' ? parseInt(idOrSlug, 10) : idOrSlug;
+        const finalWhere = isNaN(id)
+            ? { ...where, slug: idOrSlug }
+            : { ...where, id };
         const record = await this.prisma[this.modelName].findFirst({
-            where: { ...where, id },
+            where: finalWhere,
         });
         if (!record) {
             throw new common_1.NotFoundException(`${this.modelName} not found`);
@@ -39,18 +52,15 @@ let BaseService = class BaseService {
             data: {
                 ...data,
                 ...extra,
-                createdBy: userId,
-                updatedBy: userId,
             },
         });
     }
-    async update(id, data, userId, where = {}) {
-        await this.findOne(id, where);
+    async update(idOrSlug, data, userId, where = {}) {
+        const existing = await this.findOne(idOrSlug, where);
         return this.prisma[this.modelName].update({
-            where: { id },
+            where: { id: existing.id },
             data: {
                 ...data,
-                updatedBy: userId,
             },
         });
     }
