@@ -8,9 +8,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StatusLabelsController = void 0;
 const common_1 = require("@nestjs/common");
@@ -22,18 +19,8 @@ let StatusLabelsController = class StatusLabelsController extends base_controlle
         super(statusLabelsService);
         this.statusLabelsService = statusLabelsService;
     }
-    async findAll(query) {
-        return this.statusLabelsService.findAll(query);
-    }
 };
 exports.StatusLabelsController = StatusLabelsController;
-__decorate([
-    (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], StatusLabelsController.prototype, "findAll", null);
 exports.StatusLabelsController = StatusLabelsController = __decorate([
     (0, common_1.Controller)('status-labels'),
     __metadata("design:paramtypes", [status_labels_service_1.StatusLabelsService])

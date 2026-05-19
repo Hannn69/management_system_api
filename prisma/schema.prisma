@@ -111,7 +111,7 @@ model Notification {
 model Company {
   id          Int          @id @default(autoincrement())
   slug        String       @unique @default(uuid())
-  name        String   @unique
+  name        String       @unique
   phone       String?
   fax         String?
   email       String?
@@ -127,7 +127,7 @@ model Company {
 model Category {
   id                  Int          @id @default(autoincrement())
   slug                String       @unique @default(uuid())
-  name                String
+  name                String       @unique
   type                String       // Asset, Accessory, Consumable, Component, License
   eula                String?      @db.LongText
   useDefaultEula      Boolean      @default(true)
@@ -143,7 +143,7 @@ model Category {
 model Manufacturer {
   id                Int          @id @default(autoincrement())
   slug              String       @unique @default(uuid())
-  name              String
+  name              String       @unique
   url               String?
   supportUrl        String?
   warrantyLookupUrl String?
@@ -180,7 +180,7 @@ model Supplier {
 model Location {
   id        Int      @id @default(autoincrement())
   slug      String   @unique @default(uuid())
-  name      String
+  name      String   @unique
   parentId  Int?
   parent    Location? @relation("LocationHierarchy", fields: [parentId], references: [id])
   children  Location[] @relation("LocationHierarchy")
@@ -224,7 +224,7 @@ model Department {
 model AssetModel {
   id                 Int          @id @default(autoincrement())
   slug               String       @unique @default(uuid())
-  name               String
+  name               String       @unique
   categoryId         Int
   category           Category     @relation(fields: [categoryId], references: [id])
   manufacturerId     Int
@@ -246,7 +246,7 @@ model AssetModel {
 model StatusLabel {
   id        Int      @id @default(autoincrement())
   slug      String   @unique @default(uuid())
-  name      String
+  name      String       @unique
   type      String   // Deployable, Undeployable, Archived, Pending
   notes     String?  @db.Text
   createdAt DateTime @default(now())

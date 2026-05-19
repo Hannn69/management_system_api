@@ -38,7 +38,7 @@ const bcrypt = __importStar(require("bcryptjs"));
 const crypto_1 = require("crypto");
 const prisma = new client_1.PrismaClient();
 async function main() {
-    console.log("🌱 Seeding database with UUID slugs...");
+    console.log("🌱 Seeding database with at least 10 records per table...");
     console.log("📝 Creating users...");
     const passwordHash = await bcrypt.hash("password123", 12);
     const usersData = [
@@ -48,43 +48,62 @@ async function main() {
         { email: "sonvirak@example.com", passwordHash },
         { email: "alice@example.com", passwordHash },
         { email: "bob@example.com", passwordHash },
+        { email: "charlie@example.com", passwordHash },
+        { email: "david@example.com", passwordHash },
+        { email: "eve@example.com", passwordHash },
+        { email: "frank@example.com", passwordHash },
+        { email: "grace@example.com", passwordHash },
     ];
     const dbUsers = [];
     for (const user of usersData) {
         const created = await prisma.user.upsert({
             where: { email: user.email },
             update: {},
-            create: {
-                ...user,
-                slug: (0, crypto_1.randomUUID)(),
-            },
+            create: { ...user, slug: (0, crypto_1.randomUUID)() },
         });
         dbUsers.push(created);
     }
     console.log(`✓ Created ${dbUsers.length} users`);
     console.log("🏢 Creating companies...");
     const companiesData = [
-        { name: "Tech Corp", email: "contact@techcorp.com", phone: "1-800-TECH-01", fax: "1-800-TECH-02" },
-        { name: "Global Solutions", email: "info@globalsolutions.com", phone: "1-800-GLOB-01", fax: "1-800-GLOB-02" },
+        "Tech Corp", "Global Solutions", "Creative Minds", "Nova Systems", "Echo Industries",
+        "Vertex Group", "Zenith Holdings", "Quantum Inc", "Summit Enterprises", "Horizon Ltd",
+        "Pinnacle Co", "Alpha Omega"
     ];
     const dbCompanies = [];
-    for (const company of companiesData) {
+    for (const name of companiesData) {
+        const email = `contact@${name.toLowerCase().replace(/\s+/g, "")}.com`;
+        const phone = `1-800-${Math.floor(1000 + Math.random() * 9000)}`;
+        const fax = `1-800-${Math.floor(1000 + Math.random() * 9000)}`;
+        const notes = `${name} is a leading global organization with specialized departments.`;
         const created = await prisma.company.upsert({
-            where: { name: company.name },
-            update: {},
+            where: { name },
+            update: { email, phone, fax, notes },
             create: {
-                ...company,
+                name,
                 slug: (0, crypto_1.randomUUID)(),
-                notes: `${company.name} is a leading organization.`,
+                email,
+                phone,
+                fax,
+                notes,
             },
         });
         dbCompanies.push(created);
     }
-    console.log(`✓ Created ${dbCompanies.length} companies`);
+    console.log(`✓ Created/Updated ${dbCompanies.length} companies`);
     console.log("📍 Creating locations...");
     const locationsData = [
-        { name: "New York Office", city: "New York", state: "NY", country: "USA", address: "123 Broadway", zip: "10001", currency: "USD" },
-        { name: "London Studio", city: "London", state: "England", country: "UK", address: "456 Oxford St", zip: "W1A 1AA", currency: "GBP" },
+        { name: "New York Office", city: "New York", country: "USA" },
+        { name: "London Studio", city: "London", country: "UK" },
+        { name: "Tokyo Hub", city: "Tokyo", country: "Japan" },
+        { name: "Paris Branch", city: "Paris", country: "France" },
+        { name: "Berlin Site", city: "Berlin", country: "Germany" },
+        { name: "Sydney HQ", city: "Sydney", country: "Australia" },
+        { name: "Toronto Base", city: "Toronto", country: "Canada" },
+        { name: "Dubai Tower", city: "Dubai", country: "UAE" },
+        { name: "Singapore Point", city: "Singapore", country: "Singapore" },
+        { name: "Seoul Center", city: "Seoul", country: "South Korea" },
+        { name: "Mumbai Tech", city: "Mumbai", country: "India" },
     ];
     const dbLocations = [];
     for (let i = 0; i < locationsData.length; i++) {
@@ -95,45 +114,76 @@ async function main() {
             create: {
                 ...loc,
                 slug: (0, crypto_1.randomUUID)(),
+                address: `${100 + i} Main St`,
+                zip: `ZIP-${1000 + i}`,
+                currency: i % 2 === 0 ? "USD" : "EUR",
                 companyId: dbCompanies[i % dbCompanies.length].id,
             },
         });
         dbLocations.push(created);
     }
     console.log(`✓ Created ${dbLocations.length} locations`);
+    console.log("🏢 Creating departments...");
+    const departmentsData = [
+        "Engineering", "Sales", "Marketing", "Human Resources", "Finance",
+        "IT Support", "Legal", "Operations", "Research & Development", "Customer Success",
+        "Product Management", "Quality Assurance"
+    ];
+    const dbDepartments = [];
+    for (let i = 0; i < departmentsData.length; i++) {
+        const name = departmentsData[i];
+        const created = await prisma.department.upsert({
+            where: { name },
+            update: {},
+            create: {
+                name,
+                slug: (0, crypto_1.randomUUID)(),
+                companyId: dbCompanies[i % dbCompanies.length].id,
+                locationId: dbLocations[i % dbLocations.length].id,
+                notes: `The ${name} department handles key business functions.`,
+            },
+        });
+        dbDepartments.push(created);
+    }
+    console.log(`✓ Created ${dbDepartments.length} departments`);
     console.log("📦 Creating categories...");
     const categoriesData = [
         { name: "Laptops", type: "Asset" },
         { name: "Phones", type: "Asset" },
         { name: "Monitors", type: "Asset" },
+        { name: "Tablets", type: "Asset" },
+        { name: "Printers", type: "Asset" },
+        { name: "Software Licenses", type: "License" },
+        { name: "Keyboards", type: "Accessory" },
+        { name: "Mice", type: "Accessory" },
+        { name: "RAM Modules", type: "Component" },
+        { name: "Office Supplies", type: "Consumable" },
+        { name: "Networking Gear", type: "Asset" },
     ];
     const dbCategories = [];
     for (const cat of categoriesData) {
         const created = await prisma.category.upsert({
             where: { name: cat.name },
             update: {},
-            create: {
-                ...cat,
-                slug: (0, crypto_1.randomUUID)(),
-            },
+            create: { ...cat, slug: (0, crypto_1.randomUUID)() },
         });
         dbCategories.push(created);
     }
     console.log(`✓ Created ${dbCategories.length} categories`);
     console.log("🏭 Creating manufacturers...");
     const manufacturersData = [
-        { name: "Apple", url: "https://apple.com" },
-        { name: "Dell", url: "https://dell.com" },
-        { name: "Samsung", url: "https://samsung.com" },
+        "Apple", "Dell", "Samsung", "HP", "Lenovo", "Microsoft", "Asus", "Logitech", "Cisco", "Sony", "LG"
     ];
     const dbManufacturers = [];
-    for (const mfr of manufacturersData) {
+    for (const name of manufacturersData) {
         const created = await prisma.manufacturer.upsert({
-            where: { name: mfr.name },
+            where: { name },
             update: {},
             create: {
-                ...mfr,
+                name,
                 slug: (0, crypto_1.randomUUID)(),
+                url: `https://www.${name.toLowerCase()}.com`,
+                notes: `Main manufacturer for ${name} products.`,
             },
         });
         dbManufacturers.push(created);
@@ -141,17 +191,19 @@ async function main() {
     console.log(`✓ Created ${dbManufacturers.length} manufacturers`);
     console.log("🛒 Creating suppliers...");
     const suppliersData = [
-        { name: "Amazon Business", email: "business@amazon.com" },
-        { name: "CDW", email: "sales@cdw.com" },
+        "Amazon Business", "CDW", "Best Buy Enterprise", "Newegg Business", "B&H Photo",
+        "Staples Advantage", "Office Depot", "Walmart Global", "Direct Tech", "Supply Pro", "Global Equip"
     ];
     const dbSuppliers = [];
-    for (const sup of suppliersData) {
+    for (const name of suppliersData) {
         const created = await prisma.supplier.upsert({
-            where: { name: sup.name },
+            where: { name },
             update: {},
             create: {
-                ...sup,
+                name,
                 slug: (0, crypto_1.randomUUID)(),
+                email: `sales@${name.toLowerCase().replace(/\s+/g, "")}.com`,
+                notes: `Reliable supplier of hardware and software.`,
             },
         });
         dbSuppliers.push(created);
@@ -160,9 +212,20 @@ async function main() {
     console.log("💻 Creating asset models...");
     const assetModelsData = [
         { name: "MacBook Pro 14", categoryIdx: 0, manufacturerIdx: 0, modelNumber: "A2442" },
+        { name: "MacBook Air M2", categoryIdx: 0, manufacturerIdx: 0, modelNumber: "A2681" },
         { name: "Dell XPS 15", categoryIdx: 0, manufacturerIdx: 1, modelNumber: "X9520" },
+        { name: "Dell Latitude 5420", categoryIdx: 0, manufacturerIdx: 1, modelNumber: "L5420" },
         { name: "iPhone 13 Pro", categoryIdx: 1, manufacturerIdx: 0, modelNumber: "A2638" },
-        { name: "Samsung G7", categoryIdx: 2, manufacturerIdx: 2, modelNumber: "G7-32" },
+        { name: "iPhone 14", categoryIdx: 1, manufacturerIdx: 0, modelNumber: "A2881" },
+        { name: "Samsung Galaxy S22", categoryIdx: 1, manufacturerIdx: 2, modelNumber: "SM-S901" },
+        { name: "Samsung G7 Monitor", categoryIdx: 2, manufacturerIdx: 2, modelNumber: "G7-32" },
+        { name: "HP EliteDisplay", categoryIdx: 2, manufacturerIdx: 3, modelNumber: "E243" },
+        { name: "iPad Pro 11", categoryIdx: 3, manufacturerIdx: 0, modelNumber: "A2377" },
+        { name: "Microsoft Surface Pro 8", categoryIdx: 3, manufacturerIdx: 5, modelNumber: "SP8-01" },
+        { name: "Logitech MX Master 3", categoryIdx: 7, manufacturerIdx: 7, modelNumber: "MX-M3" },
+        { name: "Logitech Craft Keyboard", categoryIdx: 6, manufacturerIdx: 7, modelNumber: "LC-01" },
+        { name: "Cisco Catalyst 9300", categoryIdx: 10, manufacturerIdx: 8, modelNumber: "C9300" },
+        { name: "Sony WH-1000XM4", categoryIdx: 7, manufacturerIdx: 9, modelNumber: "XM4-01" },
     ];
     const dbAssetModels = [];
     for (const modelData of assetModelsData) {
@@ -188,52 +251,49 @@ async function main() {
         { name: "Archive", type: "Archived" },
         { name: "Broken - Not Fixable", type: "Undeployable" },
         { name: "Lost/Stolen", type: "Undeployable" },
+        { name: "In Repair", type: "Undeployable" },
+        { name: "Out for Diagnostic", type: "Undeployable" },
+        { name: "Under Audit", type: "Pending" },
+        { name: "Retired", type: "Archived" },
     ];
     const dbStatusLabels = [];
     for (const label of statusLabelsData) {
         const created = await prisma.statusLabel.upsert({
             where: { name: label.name },
             update: {},
-            create: {
-                ...label,
-                slug: (0, crypto_1.randomUUID)(),
-            },
+            create: { ...label, slug: (0, crypto_1.randomUUID)() },
         });
         dbStatusLabels.push(created);
     }
     console.log(`✓ Created ${dbStatusLabels.length} status labels`);
     console.log("📦 Creating assets...");
-    const assetsData = [
-        { assetTag: "AST-001", name: "MBP 14 - John", modelIdx: 0, statusIdx: 1, userIdx: 0 },
-        { assetTag: "AST-002", name: "MBP 14 - Stock", modelIdx: 0, statusIdx: 0, userIdx: null },
-        { assetTag: "AST-003", name: "XPS 15 - Stock", modelIdx: 1, statusIdx: 0, userIdx: null },
-        { assetTag: "AST-004", name: "iPhone 13 - Sarah", modelIdx: 2, statusIdx: 1, userIdx: 1 },
-        { assetTag: "AST-005", name: "Monitor G7", modelIdx: 3, statusIdx: 4, userIdx: null },
-        { assetTag: "AST-006", name: "iPad Air", modelIdx: 0, statusIdx: 2, userIdx: null },
-        { assetTag: "AST-007", name: "Old Laptop", modelIdx: 1, statusIdx: 3, userIdx: null },
-        { assetTag: "AST-008", name: "Lost iPhone", modelIdx: 2, statusIdx: 5, userIdx: null },
-    ];
-    for (const asset of assetsData) {
+    for (let i = 1; i <= 20; i++) {
+        const assetTag = `AST-${String(i).padStart(5, "0")}`;
+        const modelIdx = i % dbAssetModels.length;
+        const statusIdx = i % dbStatusLabels.length;
+        const userIdx = i % 2 === 0 ? (i % dbUsers.length) : null;
         await prisma.asset.upsert({
-            where: { assetTag: asset.assetTag },
+            where: { assetTag },
             update: {},
             create: {
-                assetTag: asset.assetTag,
+                assetTag,
                 slug: (0, crypto_1.randomUUID)(),
-                name: asset.name,
-                modelId: dbAssetModels[asset.modelIdx].id,
-                statusId: dbStatusLabels[asset.statusIdx].id,
-                companyId: dbCompanies[0].id,
-                locationId: dbLocations[0].id,
-                supplierId: dbSuppliers[0].id,
-                checkedOutUserId: asset.userIdx !== null ? dbUsers[asset.userIdx].id : null,
-                purchaseCost: 1500.00,
+                name: `${dbAssetModels[modelIdx].name} - ${i}`,
+                modelId: dbAssetModels[modelIdx].id,
+                statusId: dbStatusLabels[statusIdx].id,
+                companyId: dbCompanies[i % dbCompanies.length].id,
+                locationId: dbLocations[i % dbLocations.length].id,
+                supplierId: dbSuppliers[i % dbSuppliers.length].id,
+                checkedOutUserId: userIdx !== null ? dbUsers[userIdx].id : null,
+                purchaseCost: 500 + Math.random() * 2000,
                 purchaseDate: new Date(),
+                notes: `Dummy asset record #${i}`,
             },
         });
     }
+    console.log(`✓ Created 20 assets`);
     console.log("📋 Creating tasks...");
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 20; i++) {
         const key = `TASK-${i}`;
         await prisma.task.upsert({
             where: { key },
@@ -241,24 +301,26 @@ async function main() {
             create: {
                 key,
                 slug: (0, crypto_1.randomUUID)(),
-                summary: `Task ${i} summary`,
-                userId: dbUsers[0].id,
+                summary: `Maintenance Task ${i}: Check equipment stability`,
+                userId: dbUsers[i % dbUsers.length].id,
                 createdBy: dbUsers[0].id,
                 updatedBy: dbUsers[0].id,
+                status: i % 3 === 0 ? "Done" : i % 2 === 0 ? "In Progress" : "To do",
             }
         });
     }
+    console.log(`✓ Created 20 tasks`);
     console.log("🔔 Creating notifications...");
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 20; i++) {
         await prisma.notification.create({
             data: {
-                slug: (0, crypto_1.randomUUID)(),
-                userId: dbUsers[0].id,
-                type: "system",
-                message: `Notification ${i}`,
+                userId: dbUsers[i % dbUsers.length].id,
+                type: i % 2 === 0 ? "alert" : "info",
+                message: `Notification ${i}: System update successfully applied to your account.`,
             }
         });
     }
+    console.log(`✓ Created 20 notifications`);
     console.log("✅ Seeding completed successfully!");
 }
 main()

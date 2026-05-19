@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BaseService = void 0;
 const common_1 = require("@nestjs/common");
+const crypto_1 = require("crypto");
 const prisma_service_1 = require("../prisma/prisma.service");
 let BaseService = class BaseService {
     prisma;
@@ -23,24 +24,35 @@ let BaseService = class BaseService {
         const page = Number(query.page) || 1;
         const limit = Number(query.limit) || 10;
         const where = query.where || {};
+        const sort = query.sort || 'createdAt';
+        const order = query.order || 'desc';
+        const model = this.prisma[this.modelName];
         const [records, total] = await Promise.all([
-            this.prisma[this.modelName].findMany({
+            model.findMany({
                 where,
-                orderBy: { createdAt: 'desc' },
+                orderBy: { [sort]: order },
                 skip: (page - 1) * limit,
                 take: limit,
             }),
-            this.prisma[this.modelName].count({ where }),
+            model.count({ where }),
         ]);
         return { records, total };
     }
     async findOne(idOrSlug, where = {}) {
-        const id = typeof idOrSlug === 'string' ? parseInt(idOrSlug, 10) : idOrSlug;
-        const finalWhere = isNaN(id)
-            ? { ...where, slug: idOrSlug }
-            : { ...where, id };
-        const record = await this.prisma[this.modelName].findFirst({
-            where: finalWhere,
+        const isNumeric = typeof idOrSlug === 'number' ||
+            (typeof idOrSlug === 'string' && /^\d+$/.test(idOrSlug));
+        const model = this.prisma[this.modelName];
+        if (isNumeric) {
+            const id = typeof idOrSlug === 'string' ? parseInt(idOrSlug, 10) : idOrSlug;
+            const record = await model.findFirst({
+                where: { ...(where || {}), id },
+            });
+            if (!record)
+                throw new common_1.NotFoundException(`${this.modelName} not found`);
+            return record;
+        }
+        const record = await model.findFirst({
+            where: { ...(where || {}), slug: idOrSlug },
         });
         if (!record) {
             throw new common_1.NotFoundException(`${this.modelName} not found`);
@@ -48,16 +60,28 @@ let BaseService = class BaseService {
         return record;
     }
     async create(data, userId, extra = {}) {
-        return this.prisma[this.modelName].create({
-            data: {
-                ...data,
-                ...extra,
-            },
-        });
+        const model = this.prisma[this.modelName];
+        try {
+            return await model.create({
+                data: {
+                    slug: (0, crypto_1.randomUUID)(),
+                    ...data,
+                    ...(extra || {}),
+                },
+            });
+        }
+        catch (error) {
+            if (error.code === 'P2002') {
+                const field = error.meta?.target?.[0] || 'field';
+                throw new common_1.BadRequestException(`${field} must be unique`);
+            }
+            throw error;
+        }
     }
     async update(idOrSlug, data, userId, where = {}) {
         const existing = await this.findOne(idOrSlug, where);
-        return this.prisma[this.modelName].update({
+        const model = this.prisma[this.modelName];
+        return await model.update({
             where: { id: existing.id },
             data: {
                 ...data,
@@ -65,11 +89,9 @@ let BaseService = class BaseService {
         });
     }
     async remove(id, userId, where = {}) {
-        const existing = await this.findOne(id, where);
-        if (existing.userId && existing.userId !== userId) {
-            throw new common_1.ForbiddenException('Forbidden');
-        }
-        await this.prisma[this.modelName].delete({
+        await this.findOne(id, where);
+        const model = this.prisma[this.modelName];
+        await model.delete({
             where: { id },
         });
         return { success: true };

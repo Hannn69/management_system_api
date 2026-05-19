@@ -1,11 +1,11 @@
 import { Location } from '@prisma/client';
-import { BaseService } from '../common/base.service';
+import { BaseService, BaseQuery } from '../common/base.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateSettingDto, UpdateSettingDto } from '../common/dto/settings.dto';
-export declare class LocationsService extends BaseService<Location, CreateSettingDto, UpdateSettingDto> {
+import { CreateLocationDto, UpdateLocationDto } from '../common/dto/entity.dto';
+export declare class LocationsService extends BaseService<Location, CreateLocationDto, UpdateLocationDto> {
     protected readonly prisma: PrismaService;
     constructor(prisma: PrismaService);
-    findAll(query?: any): Promise<{
+    findAll(query?: BaseQuery): Promise<{
         records: {
             parent: string;
             people: number;
@@ -42,5 +42,5 @@ export declare class LocationsService extends BaseService<Location, CreateSettin
         }[];
         total: number;
     }>;
-    create(data: any, userId: number): Promise<Location>;
+    create(data: CreateLocationDto, userId: number): Promise<Location>;
 }

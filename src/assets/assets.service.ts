@@ -1,21 +1,28 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Asset, Prisma } from '@prisma/client';
-import { BaseService } from '../common/base.service';
+import { BaseService, BaseQuery } from '../common/base.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAssetDto, UpdateAssetDto } from './dto/assets.dto';
-import { slugify } from '../common/utils/slugify';
+
+export interface AssetQuery extends BaseQuery {
+  category?: string;
+}
 
 @Injectable()
-export class AssetsService extends BaseService<Asset, CreateAssetDto, UpdateAssetDto> {
+export class AssetsService extends BaseService<
+  Asset,
+  CreateAssetDto,
+  UpdateAssetDto
+> {
   constructor(protected readonly prisma: PrismaService) {
     super(prisma, 'asset');
   }
 
-  async findAll(query: any) {
+  async findAll(query: AssetQuery = {}) {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 10;
-    const sort = query.sort || 'assetTag';
-    const order = query.order || 'asc';
+    const sort = query.sort || 'createdAt';
+    const order = (query.order as 'asc' | 'desc') || 'desc';
     const search = query.search || '';
     const categoryFilter = query.category;
 
@@ -38,7 +45,9 @@ export class AssetsService extends BaseService<Asset, CreateAssetDto, UpdateAsse
       } else if (categoryFilter === 'pending') {
         where.status = { name: 'Pending' };
       } else if (categoryFilter === 'undeployable') {
-        where.status = { name: { in: ['Broken - Not Fixable', 'Lost/Stolen'] } };
+        where.status = {
+          name: { in: ['Broken - Not Fixable', 'Lost/Stolen'] },
+        };
       } else if (categoryFilter === 'byod') {
         where.isByod = true;
       } else if (categoryFilter === 'archive') {
@@ -73,22 +82,26 @@ export class AssetsService extends BaseService<Asset, CreateAssetDto, UpdateAsse
     const formattedRecords = records.map((r) => ({
       ...r,
       model: r.model.name,
-      category: 'Asset', 
+      category: 'Asset',
       status: r.status.name,
       checkedOutTo: r.checkedOutUser ? r.checkedOutUser.email : null,
       location: r.location ? r.location.name : 'N/A',
       purchaseCost: r.purchaseCost ? Number(r.purchaseCost) : 0,
-      currentValue: r.purchaseCost ? Number(r.purchaseCost) * 0.8 : 0, 
+      currentValue: r.purchaseCost ? Number(r.purchaseCost) * 0.8 : 0,
     }));
 
     return { records: formattedRecords, total };
   }
 
   async findOne(idOrSlug: string | number): Promise<Asset> {
-    const id = typeof idOrSlug === 'string' ? parseInt(idOrSlug, 10) : idOrSlug;
-    const where: Prisma.AssetWhereInput = isNaN(id)
-      ? { slug: idOrSlug as string }
-      : { id };
+    // Check if idOrSlug is a pure numeric string/number
+    const isNumeric =
+      typeof idOrSlug === 'number' ||
+      (typeof idOrSlug === 'string' && /^\d+$/.test(idOrSlug));
+
+    const where: Prisma.AssetWhereInput = isNumeric
+      ? { id: typeof idOrSlug === 'string' ? parseInt(idOrSlug, 10) : idOrSlug }
+      : { slug: idOrSlug };
 
     const record = await this.prisma.asset.findFirst({
       where,
@@ -116,22 +129,25 @@ export class AssetsService extends BaseService<Asset, CreateAssetDto, UpdateAsse
         ...data,
       },
       userId,
-      { 
+      {
         assetTag,
-        slug: slugify(assetTag)
       },
     );
   }
 
-  async update(idOrSlug: string | number, data: UpdateAssetDto, userId: number): Promise<Asset> {
+  async update(
+    idOrSlug: string | number,
+    data: UpdateAssetDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _userId: number,
+  ): Promise<Asset> {
     const record = await this.findOne(idOrSlug);
-    
+
     return this.prisma.asset.update({
       where: { id: record.id },
       data: {
         ...data,
         assetTag: data.assetTag || record.assetTag,
-        slug: data.assetTag ? slugify(data.assetTag) : record.slug,
       },
     });
   }

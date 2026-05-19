@@ -1,9 +1,10 @@
 import { Request } from 'express';
 import { IBaseService } from './interfaces/base-service.interface';
+import { BaseQuery } from './base.service';
 export declare abstract class BaseController<T, CreateDto, UpdateDto> {
     protected readonly service: IBaseService<T, CreateDto, UpdateDto>;
     constructor(service: IBaseService<T, CreateDto, UpdateDto>);
-    findAll(query: any): Promise<{
+    findAll(query: BaseQuery): Promise<{
         records: any[];
         total: number;
     }>;

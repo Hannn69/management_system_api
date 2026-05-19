@@ -1,11 +1,11 @@
 import { Department } from '@prisma/client';
-import { BaseService } from '../common/base.service';
+import { BaseService, BaseQuery } from '../common/base.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateSettingDto, UpdateSettingDto } from '../common/dto/settings.dto';
-export declare class DepartmentsService extends BaseService<Department, CreateSettingDto, UpdateSettingDto> {
+import { CreateDepartmentDto, UpdateDepartmentDto } from '../common/dto/entity.dto';
+export declare class DepartmentsService extends BaseService<Department, CreateDepartmentDto, UpdateDepartmentDto> {
     protected readonly prisma: PrismaService;
     constructor(prisma: PrismaService);
-    findAll(query?: any): Promise<{
+    findAll(query?: BaseQuery): Promise<{
         records: {
             manager: string;
             location: string;
@@ -25,5 +25,5 @@ export declare class DepartmentsService extends BaseService<Department, CreateSe
         }[];
         total: number;
     }>;
-    create(data: any, userId: number): Promise<Department>;
+    create(data: CreateDepartmentDto, userId: number): Promise<Department>;
 }

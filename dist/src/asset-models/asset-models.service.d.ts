@@ -1,11 +1,11 @@
 import { AssetModel } from '@prisma/client';
-import { BaseService } from '../common/base.service';
+import { BaseService, BaseQuery } from '../common/base.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAssetModelDto, UpdateAssetModelDto } from '../common/dto/entity.dto';
 export declare class AssetModelsService extends BaseService<AssetModel, CreateAssetModelDto, UpdateAssetModelDto> {
     protected readonly prisma: PrismaService;
     constructor(prisma: PrismaService);
-    findAll(query?: any): Promise<{
+    findAll(query?: BaseQuery): Promise<{
         records: {
             category: string;
             manufacturer: string;

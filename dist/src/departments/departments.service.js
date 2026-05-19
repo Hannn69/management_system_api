@@ -13,7 +13,6 @@ exports.DepartmentsService = void 0;
 const common_1 = require("@nestjs/common");
 const base_service_1 = require("../common/base.service");
 const prisma_service_1 = require("../prisma/prisma.service");
-const slugify_1 = require("../common/utils/slugify");
 let DepartmentsService = class DepartmentsService extends base_service_1.BaseService {
     prisma;
     constructor(prisma) {
@@ -24,6 +23,8 @@ let DepartmentsService = class DepartmentsService extends base_service_1.BaseSer
         const page = Number(query.page) || 1;
         const limit = Number(query.limit) || 10;
         const search = query.search || '';
+        const sort = query.sort || 'createdAt';
+        const order = query.order || 'desc';
         const where = {};
         if (search) {
             where.name = { contains: search };
@@ -34,6 +35,7 @@ let DepartmentsService = class DepartmentsService extends base_service_1.BaseSer
                 include: {
                     location: true,
                 },
+                orderBy: { [sort]: order },
                 skip: (page - 1) * limit,
                 take: limit,
             }),
@@ -48,7 +50,7 @@ let DepartmentsService = class DepartmentsService extends base_service_1.BaseSer
         return { records: formatted, total };
     }
     async create(data, userId) {
-        return super.create(data, userId, { slug: (0, slugify_1.slugify)(data.name) });
+        return super.create(data, userId);
     }
 };
 exports.DepartmentsService = DepartmentsService;

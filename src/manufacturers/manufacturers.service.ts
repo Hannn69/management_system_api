@@ -1,22 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { Manufacturer } from '@prisma/client';
-import { BaseService } from '../common/base.service';
+import { Manufacturer, Prisma } from '@prisma/client';
+import { BaseService, BaseQuery } from '../common/base.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSettingDto, UpdateSettingDto } from '../common/dto/settings.dto';
-import { slugify } from '../common/utils/slugify';
 
 @Injectable()
-export class ManufacturersService extends BaseService<Manufacturer, CreateSettingDto, UpdateSettingDto> {
+export class ManufacturersService extends BaseService<
+  Manufacturer,
+  CreateSettingDto,
+  UpdateSettingDto
+> {
   constructor(protected readonly prisma: PrismaService) {
     super(prisma, 'manufacturer');
   }
 
-  async findAll(query: any = {}) {
+  async findAll(query: BaseQuery = {}) {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 10;
     const search = query.search || '';
+    const sort = query.sort || 'createdAt';
+    const order = query.order || 'desc';
 
-    const where: any = {};
+    const where: Prisma.ManufacturerWhereInput = {};
     if (search) {
       where.name = { contains: search };
     }
@@ -31,6 +36,7 @@ export class ManufacturersService extends BaseService<Manufacturer, CreateSettin
             },
           },
         },
+        orderBy: { [sort as any]: order },
         skip: (page - 1) * limit,
         take: limit,
       }),
@@ -49,7 +55,7 @@ export class ManufacturersService extends BaseService<Manufacturer, CreateSettin
     return { records: formatted, total };
   }
 
-  async create(data: any, userId: number): Promise<Manufacturer> {
-    return super.create(data, userId, { slug: slugify(data.name) });
+  async create(data: CreateSettingDto, userId: number): Promise<Manufacturer> {
+    return super.create(data, userId);
   }
 }

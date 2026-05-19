@@ -33,7 +33,8 @@ let AuthController = class AuthController {
         return { user };
     }
     async refresh(req, res) {
-        const refreshToken = req.cookies?.['refresh_token'];
+        const cookies = req.cookies;
+        const refreshToken = cookies?.['refresh_token'];
         if (!refreshToken) {
             throw new common_1.UnauthorizedException('Missing refresh token.');
         }
@@ -42,7 +43,8 @@ let AuthController = class AuthController {
         return { user };
     }
     async logout(req, res) {
-        const refreshToken = req.cookies?.['refresh_token'];
+        const cookies = req.cookies;
+        const refreshToken = cookies?.['refresh_token'];
         if (refreshToken) {
             const userId = await this.authService.getUserIdFromRefreshToken(refreshToken);
             if (userId) {

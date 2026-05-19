@@ -13,7 +13,6 @@ exports.ManufacturersService = void 0;
 const common_1 = require("@nestjs/common");
 const base_service_1 = require("../common/base.service");
 const prisma_service_1 = require("../prisma/prisma.service");
-const slugify_1 = require("../common/utils/slugify");
 let ManufacturersService = class ManufacturersService extends base_service_1.BaseService {
     prisma;
     constructor(prisma) {
@@ -24,6 +23,8 @@ let ManufacturersService = class ManufacturersService extends base_service_1.Bas
         const page = Number(query.page) || 1;
         const limit = Number(query.limit) || 10;
         const search = query.search || '';
+        const sort = query.sort || 'createdAt';
+        const order = query.order || 'desc';
         const where = {};
         if (search) {
             where.name = { contains: search };
@@ -38,6 +39,7 @@ let ManufacturersService = class ManufacturersService extends base_service_1.Bas
                         },
                     },
                 },
+                orderBy: { [sort]: order },
                 skip: (page - 1) * limit,
                 take: limit,
             }),
@@ -54,7 +56,7 @@ let ManufacturersService = class ManufacturersService extends base_service_1.Bas
         return { records: formatted, total };
     }
     async create(data, userId) {
-        return super.create(data, userId, { slug: (0, slugify_1.slugify)(data.name) });
+        return super.create(data, userId);
     }
 };
 exports.ManufacturersService = ManufacturersService;

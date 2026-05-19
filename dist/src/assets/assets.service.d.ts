@@ -1,11 +1,14 @@
 import { Asset } from '@prisma/client';
-import { BaseService } from '../common/base.service';
+import { BaseService, BaseQuery } from '../common/base.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAssetDto, UpdateAssetDto } from './dto/assets.dto';
+export interface AssetQuery extends BaseQuery {
+    category?: string;
+}
 export declare class AssetsService extends BaseService<Asset, CreateAssetDto, UpdateAssetDto> {
     protected readonly prisma: PrismaService;
     constructor(prisma: PrismaService);
-    findAll(query: any): Promise<{
+    findAll(query?: AssetQuery): Promise<{
         records: {
             model: string;
             category: string;
@@ -44,12 +47,12 @@ export declare class AssetsService extends BaseService<Asset, CreateAssetDto, Up
             notes: string | null;
             companyId: number | null;
             image: string | null;
+            locationId: number | null;
             isRequestable: boolean;
             assetTag: string;
             serial: string | null;
             modelId: number;
             statusId: number;
-            locationId: number | null;
             supplierId: number | null;
             checkedOutUserId: number | null;
             isByod: boolean;
@@ -64,5 +67,5 @@ export declare class AssetsService extends BaseService<Asset, CreateAssetDto, Up
     }>;
     findOne(idOrSlug: string | number): Promise<Asset>;
     create(data: CreateAssetDto, userId: number): Promise<Asset>;
-    update(idOrSlug: string | number, data: UpdateAssetDto, userId: number): Promise<Asset>;
+    update(idOrSlug: string | number, data: UpdateAssetDto, _userId: number): Promise<Asset>;
 }

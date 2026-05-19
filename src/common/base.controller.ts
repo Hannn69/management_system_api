@@ -8,19 +8,19 @@ import {
   Post,
   Query,
   Req,
-  UnauthorizedException,
-  UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { IBaseService } from './interfaces/base-service.interface';
+import { BaseQuery } from './base.service';
 
 // @UseGuards(AuthGuard('jwt'))
 export abstract class BaseController<T, CreateDto, UpdateDto> {
-  constructor(protected readonly service: IBaseService<T, CreateDto, UpdateDto>) {}
+  constructor(
+    protected readonly service: IBaseService<T, CreateDto, UpdateDto>,
+  ) {}
 
   @Get()
-  async findAll(@Query() query: any) {
+  async findAll(@Query() query: BaseQuery) {
     return this.service.findAll(query);
   }
 

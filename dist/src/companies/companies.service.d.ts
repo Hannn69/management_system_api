@@ -1,11 +1,11 @@
 import { Company } from '@prisma/client';
-import { BaseService } from '../common/base.service';
+import { BaseService, BaseQuery } from '../common/base.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateSettingDto, UpdateSettingDto } from '../common/dto/settings.dto';
-export declare class CompaniesService extends BaseService<Company, CreateSettingDto, UpdateSettingDto> {
+import { CreateCompanyDto, UpdateCompanyDto } from '../common/dto/entity.dto';
+export declare class CompaniesService extends BaseService<Company, CreateCompanyDto, UpdateCompanyDto> {
     protected readonly prisma: PrismaService;
     constructor(prisma: PrismaService);
-    findAll(query?: any): Promise<{
+    findAll(query?: BaseQuery): Promise<{
         records: {
             assets: number;
             users: number;
@@ -31,5 +31,5 @@ export declare class CompaniesService extends BaseService<Company, CreateSetting
         }[];
         total: number;
     }>;
-    create(data: CreateSettingDto, userId: number): Promise<Company>;
+    create(data: CreateCompanyDto, userId: number): Promise<Company>;
 }

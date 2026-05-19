@@ -44,7 +44,7 @@ __decorate([
     __metadata("design:type", String)
 ], CreateSettingDto.prototype, "fax", void 0);
 __decorate([
-    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsEmail)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateSettingDto.prototype, "email", void 0);
@@ -131,7 +131,7 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateSettingDto.prototype, "fax", void 0);
 __decorate([
-    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsEmail)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateSettingDto.prototype, "email", void 0);

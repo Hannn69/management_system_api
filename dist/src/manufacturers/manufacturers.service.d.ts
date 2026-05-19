@@ -1,11 +1,11 @@
 import { Manufacturer } from '@prisma/client';
-import { BaseService } from '../common/base.service';
+import { BaseService, BaseQuery } from '../common/base.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSettingDto, UpdateSettingDto } from '../common/dto/settings.dto';
 export declare class ManufacturersService extends BaseService<Manufacturer, CreateSettingDto, UpdateSettingDto> {
     protected readonly prisma: PrismaService;
     constructor(prisma: PrismaService);
-    findAll(query?: any): Promise<{
+    findAll(query?: BaseQuery): Promise<{
         records: {
             assets: number;
             licenses: number;
@@ -30,5 +30,5 @@ export declare class ManufacturersService extends BaseService<Manufacturer, Crea
         }[];
         total: number;
     }>;
-    create(data: any, userId: number): Promise<Manufacturer>;
+    create(data: CreateSettingDto, userId: number): Promise<Manufacturer>;
 }

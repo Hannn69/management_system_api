@@ -13,18 +13,17 @@ exports.AssetsService = void 0;
 const common_1 = require("@nestjs/common");
 const base_service_1 = require("../common/base.service");
 const prisma_service_1 = require("../prisma/prisma.service");
-const slugify_1 = require("../common/utils/slugify");
 let AssetsService = class AssetsService extends base_service_1.BaseService {
     prisma;
     constructor(prisma) {
         super(prisma, 'asset');
         this.prisma = prisma;
     }
-    async findAll(query) {
+    async findAll(query = {}) {
         const page = Number(query.page) || 1;
         const limit = Number(query.limit) || 10;
-        const sort = query.sort || 'assetTag';
-        const order = query.order || 'asc';
+        const sort = query.sort || 'createdAt';
+        const order = query.order || 'desc';
         const search = query.search || '';
         const categoryFilter = query.category;
         const where = {};
@@ -47,7 +46,9 @@ let AssetsService = class AssetsService extends base_service_1.BaseService {
                 where.status = { name: 'Pending' };
             }
             else if (categoryFilter === 'undeployable') {
-                where.status = { name: { in: ['Broken - Not Fixable', 'Lost/Stolen'] } };
+                where.status = {
+                    name: { in: ['Broken - Not Fixable', 'Lost/Stolen'] },
+                };
             }
             else if (categoryFilter === 'byod') {
                 where.isByod = true;
@@ -94,10 +95,11 @@ let AssetsService = class AssetsService extends base_service_1.BaseService {
         return { records: formattedRecords, total };
     }
     async findOne(idOrSlug) {
-        const id = typeof idOrSlug === 'string' ? parseInt(idOrSlug, 10) : idOrSlug;
-        const where = isNaN(id)
-            ? { slug: idOrSlug }
-            : { id };
+        const isNumeric = typeof idOrSlug === 'number' ||
+            (typeof idOrSlug === 'string' && /^\d+$/.test(idOrSlug));
+        const where = isNumeric
+            ? { id: typeof idOrSlug === 'string' ? parseInt(idOrSlug, 10) : idOrSlug }
+            : { slug: idOrSlug };
         const record = await this.prisma.asset.findFirst({
             where,
             include: {
@@ -120,17 +122,15 @@ let AssetsService = class AssetsService extends base_service_1.BaseService {
             ...data,
         }, userId, {
             assetTag,
-            slug: (0, slugify_1.slugify)(assetTag)
         });
     }
-    async update(idOrSlug, data, userId) {
+    async update(idOrSlug, data, _userId) {
         const record = await this.findOne(idOrSlug);
         return this.prisma.asset.update({
             where: { id: record.id },
             data: {
                 ...data,
                 assetTag: data.assetTag || record.assetTag,
-                slug: data.assetTag ? (0, slugify_1.slugify)(data.assetTag) : record.slug,
             },
         });
     }

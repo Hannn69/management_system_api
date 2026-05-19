@@ -1,22 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { Category } from '@prisma/client';
-import { BaseService } from '../common/base.service';
+import { Category, Prisma } from '@prisma/client';
+import { BaseService, BaseQuery } from '../common/base.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateSettingDto, UpdateSettingDto } from '../common/dto/settings.dto';
-import { slugify } from '../common/utils/slugify';
+import { CreateCategoryDto, UpdateCategoryDto } from '../common/dto/entity.dto';
 
 @Injectable()
-export class CategoriesService extends BaseService<Category, CreateSettingDto, UpdateSettingDto> {
+export class CategoriesService extends BaseService<
+  Category,
+  CreateCategoryDto,
+  UpdateCategoryDto
+> {
   constructor(protected readonly prisma: PrismaService) {
     super(prisma, 'category');
   }
 
-  async findAll(query: any = {}) {
+  async findAll(query: BaseQuery = {}) {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 10;
     const search = query.search || '';
+    const sort = query.sort || 'createdAt';
+    const order = (query.order as 'asc' | 'desc') || 'desc';
 
-    const where: any = {};
+    const where: Prisma.CategoryWhereInput = {};
     if (search) {
       where.name = { contains: search };
     }
@@ -31,6 +36,7 @@ export class CategoriesService extends BaseService<Category, CreateSettingDto, U
             },
           },
         },
+        orderBy: { [sort]: order },
         skip: (page - 1) * limit,
         take: limit,
       }),
@@ -47,7 +53,7 @@ export class CategoriesService extends BaseService<Category, CreateSettingDto, U
     return { records: formatted, total };
   }
 
-  async create(data: any, userId: number): Promise<Category> {
-    return super.create(data, userId, { slug: slugify(data.name) });
+  async create(data: CreateCategoryDto, userId: number): Promise<Category> {
+    return super.create(data, userId);
   }
 }

@@ -1,28 +1,34 @@
 import { Injectable } from '@nestjs/common';
-import { Company } from '@prisma/client';
-import { BaseService } from '../common/base.service';
+import { Company, Prisma } from '@prisma/client';
+import { BaseService, BaseQuery } from '../common/base.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateSettingDto, UpdateSettingDto } from '../common/dto/settings.dto';
-import { slugify } from '../common/utils/slugify';
+import { CreateCompanyDto, UpdateCompanyDto } from '../common/dto/entity.dto';
 
 @Injectable()
-export class CompaniesService extends BaseService<Company, CreateSettingDto, UpdateSettingDto> {
+export class CompaniesService extends BaseService<
+  Company,
+  CreateCompanyDto,
+  UpdateCompanyDto
+> {
   constructor(protected readonly prisma: PrismaService) {
     super(prisma, 'company');
   }
 
-  async findAll(query: any = {}) {
+  async findAll(query: BaseQuery = {}) {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 10;
     const search = query.search || '';
 
-    const where: any = {};
+    const where: Prisma.CompanyWhereInput = {};
     if (search) {
       where.OR = [
         { name: { contains: search } },
         { email: { contains: search } },
       ];
     }
+
+    const sort = query.sort || 'createdAt';
+    const order = (query.order as 'asc' | 'desc') || 'desc';
 
     const [records, total] = await Promise.all([
       this.prisma.company.findMany({
@@ -36,6 +42,7 @@ export class CompaniesService extends BaseService<Company, CreateSettingDto, Upd
             },
           },
         },
+        orderBy: { [sort]: order },
         skip: (page - 1) * limit,
         take: limit,
       }),
@@ -55,7 +62,7 @@ export class CompaniesService extends BaseService<Company, CreateSettingDto, Upd
     return { records: formatted, total };
   }
 
-  async create(data: CreateSettingDto, userId: number): Promise<Company> {
-    return super.create(data, userId, { slug: slugify(data.name) });
+  async create(data: CreateCompanyDto, userId: number): Promise<Company> {
+    return super.create(data, userId);
   }
 }

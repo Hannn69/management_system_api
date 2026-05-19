@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { StatusLabel } from '@prisma/client';
 import { BaseController } from '../common/base.controller';
 import { CreateSettingDto, UpdateSettingDto } from '../common/dto/settings.dto';
@@ -12,10 +12,5 @@ export class StatusLabelsController extends BaseController<
 > {
   constructor(private readonly statusLabelsService: StatusLabelsService) {
     super(statusLabelsService);
-  }
-
-  @Get()
-  override async findAll(@Query() query: any) {
-    return this.statusLabelsService.findAll(query);
   }
 }

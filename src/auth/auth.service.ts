@@ -38,7 +38,11 @@ export class AuthService {
     });
 
     const tokens = await this.issueTokens(user.id, user.email);
-    await this.storeRefreshToken(user.id, tokens.refreshToken, tokens.refreshTtlMs);
+    await this.storeRefreshToken(
+      user.id,
+      tokens.refreshToken,
+      tokens.refreshTtlMs,
+    );
 
     return { user: { id: user.id, email: user.email }, tokens };
   }
@@ -58,7 +62,11 @@ export class AuthService {
     }
 
     const tokens = await this.issueTokens(user.id, user.email);
-    await this.storeRefreshToken(user.id, tokens.refreshToken, tokens.refreshTtlMs);
+    await this.storeRefreshToken(
+      user.id,
+      tokens.refreshToken,
+      tokens.refreshTtlMs,
+    );
 
     return { user: { id: user.id, email: user.email }, tokens };
   }
@@ -97,7 +105,11 @@ export class AuthService {
     }
 
     const tokens = await this.issueTokens(user.id, user.email);
-    await this.storeRefreshToken(user.id, tokens.refreshToken, tokens.refreshTtlMs);
+    await this.storeRefreshToken(
+      user.id,
+      tokens.refreshToken,
+      tokens.refreshTtlMs,
+    );
 
     return { user: { id: user.id, email: user.email }, tokens };
   }
@@ -109,19 +121,29 @@ export class AuthService {
     });
   }
 
-  async getUserIdFromRefreshToken(refreshToken: string): Promise<number | null> {
+  async getUserIdFromRefreshToken(
+    refreshToken: string,
+  ): Promise<number | null> {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const payload = await this.jwtService.verifyAsync(refreshToken, {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
       });
-      const sub = payload.sub as number | string;
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      const sub = payload.sub;
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return typeof sub === 'string' ? Number(sub) : sub;
     } catch {
       return null;
     }
   }
 
-  private async issueTokens(userId: number, email: string): Promise<TokenBundle> {
+  private async issueTokens(
+    userId: number,
+    email: string,
+  ): Promise<TokenBundle> {
     const accessTtl = this.configService.get<string>('JWT_ACCESS_TTL', '15m');
     const refreshTtl = this.configService.get<string>('JWT_REFRESH_TTL', '7d');
     const accessTtlMs = this.parseDurationToMs(accessTtl);

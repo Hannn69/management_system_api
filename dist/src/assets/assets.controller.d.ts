@@ -2,11 +2,11 @@ import { Asset } from '@prisma/client';
 import { Request } from 'express';
 import { BaseController } from '../common/base.controller';
 import { CreateAssetDto, UpdateAssetDto } from './dto/assets.dto';
-import { AssetsService } from './assets.service';
+import { AssetsService, AssetQuery } from './assets.service';
 export declare class AssetsController extends BaseController<Asset, CreateAssetDto, UpdateAssetDto> {
     private readonly assetsService;
     constructor(assetsService: AssetsService);
-    findAll(query: any): Promise<{
+    findAll(query: AssetQuery): Promise<{
         records: {
             model: string;
             category: string;
@@ -45,12 +45,12 @@ export declare class AssetsController extends BaseController<Asset, CreateAssetD
             notes: string | null;
             companyId: number | null;
             image: string | null;
+            locationId: number | null;
             isRequestable: boolean;
             assetTag: string;
             serial: string | null;
             modelId: number;
             statusId: number;
-            locationId: number | null;
             supplierId: number | null;
             checkedOutUserId: number | null;
             isByod: boolean;
@@ -73,12 +73,12 @@ export declare class AssetsController extends BaseController<Asset, CreateAssetD
             notes: string | null;
             companyId: number | null;
             image: string | null;
+            locationId: number | null;
             isRequestable: boolean;
             assetTag: string;
             serial: string | null;
             modelId: number;
             statusId: number;
-            locationId: number | null;
             supplierId: number | null;
             checkedOutUserId: number | null;
             isByod: boolean;
@@ -101,12 +101,12 @@ export declare class AssetsController extends BaseController<Asset, CreateAssetD
             notes: string | null;
             companyId: number | null;
             image: string | null;
+            locationId: number | null;
             isRequestable: boolean;
             assetTag: string;
             serial: string | null;
             modelId: number;
             statusId: number;
-            locationId: number | null;
             supplierId: number | null;
             checkedOutUserId: number | null;
             isByod: boolean;

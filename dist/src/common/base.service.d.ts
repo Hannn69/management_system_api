@@ -1,9 +1,17 @@
 import { PrismaService } from '../prisma/prisma.service';
+export interface BaseQuery {
+    page?: string | number;
+    limit?: string | number;
+    sort?: string;
+    order?: 'asc' | 'desc';
+    search?: string;
+    where?: any;
+}
 export declare abstract class BaseService<T, CreateDto, UpdateDto> {
     protected readonly prisma: PrismaService;
     protected readonly modelName: string;
     constructor(prisma: PrismaService, modelName: string);
-    findAll(query?: any): Promise<{
+    findAll(query?: BaseQuery): Promise<{
         records: any[];
         total: number;
     }>;

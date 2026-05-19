@@ -5,24 +5,4 @@ import { DepartmentsService } from './departments.service';
 export declare class DepartmentsController extends BaseController<Department, CreateDepartmentDto, UpdateDepartmentDto> {
     private readonly departmentsService;
     constructor(departmentsService: DepartmentsService);
-    findAll(query: any): Promise<{
-        records: {
-            manager: string;
-            location: string;
-            people: number;
-            name: string;
-            id: number;
-            slug: string;
-            createdAt: Date;
-            updatedAt: Date;
-            phone: string | null;
-            fax: string | null;
-            notes: string | null;
-            managerId: number | null;
-            companyId: number | null;
-            image: string | null;
-            locationId: number | null;
-        }[];
-        total: number;
-    }>;
 }

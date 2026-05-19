@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { Company } from '@prisma/client';
 import { BaseController } from '../common/base.controller';
 import { CreateCompanyDto, UpdateCompanyDto } from '../common/dto/entity.dto';
@@ -12,10 +12,5 @@ export class CompaniesController extends BaseController<
 > {
   constructor(private readonly companiesService: CompaniesService) {
     super(companiesService);
-  }
-
-  @Get()
-  override async findAll(@Query() query: any) {
-    return this.companiesService.findAll(query);
   }
 }

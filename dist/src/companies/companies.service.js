@@ -13,7 +13,6 @@ exports.CompaniesService = void 0;
 const common_1 = require("@nestjs/common");
 const base_service_1 = require("../common/base.service");
 const prisma_service_1 = require("../prisma/prisma.service");
-const slugify_1 = require("../common/utils/slugify");
 let CompaniesService = class CompaniesService extends base_service_1.BaseService {
     prisma;
     constructor(prisma) {
@@ -31,6 +30,8 @@ let CompaniesService = class CompaniesService extends base_service_1.BaseService
                 { email: { contains: search } },
             ];
         }
+        const sort = query.sort || 'createdAt';
+        const order = query.order || 'desc';
         const [records, total] = await Promise.all([
             this.prisma.company.findMany({
                 where,
@@ -43,6 +44,7 @@ let CompaniesService = class CompaniesService extends base_service_1.BaseService
                         },
                     },
                 },
+                orderBy: { [sort]: order },
                 skip: (page - 1) * limit,
                 take: limit,
             }),
@@ -60,7 +62,7 @@ let CompaniesService = class CompaniesService extends base_service_1.BaseService
         return { records: formatted, total };
     }
     async create(data, userId) {
-        return super.create(data, userId, { slug: (0, slugify_1.slugify)(data.name) });
+        return super.create(data, userId);
     }
 };
 exports.CompaniesService = CompaniesService;

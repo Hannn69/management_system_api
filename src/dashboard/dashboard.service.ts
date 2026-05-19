@@ -6,13 +6,14 @@ export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getSummary() {
-    const [assetModels, categories, manufacturers, suppliers, assets] = await Promise.all([
-      this.prisma.assetModel.count(),
-      this.prisma.category.count(),
-      this.prisma.manufacturer.count(),
-      this.prisma.supplier.count(),
-      this.prisma.asset.count(),
-    ]);
+    const [assetModels, categories, manufacturers, suppliers, assets] =
+      await Promise.all([
+        this.prisma.assetModel.count(),
+        this.prisma.category.count(),
+        this.prisma.manufacturer.count(),
+        this.prisma.supplier.count(),
+        this.prisma.asset.count(),
+      ]);
 
     return {
       assetModels,

@@ -1,4 +1,11 @@
-import { IsBoolean, IsNotEmpty, IsOptional, IsString, IsEmail, IsInt } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsEmail,
+  IsInt,
+} from 'class-validator';
 
 export class CreateSettingDto {
   @IsString()
@@ -13,7 +20,7 @@ export class CreateSettingDto {
   @IsOptional()
   fax?: string;
 
-  @IsString()
+  @IsEmail()
   @IsOptional()
   email?: string;
 
@@ -73,7 +80,7 @@ export class UpdateSettingDto {
   @IsOptional()
   fax?: string;
 
-  @IsString()
+  @IsEmail()
   @IsOptional()
   email?: string;
 

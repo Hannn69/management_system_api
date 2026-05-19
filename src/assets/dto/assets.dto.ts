@@ -1,4 +1,11 @@
-import { IsString, IsOptional, IsInt, IsBoolean, IsNumber, IsDateString } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsInt,
+  IsBoolean,
+  IsNumber,
+  IsDateString,
+} from 'class-validator';
 
 export class CreateAssetDto {
   @IsString()
