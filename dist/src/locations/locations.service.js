@@ -37,6 +37,7 @@ let LocationsService = class LocationsService extends base_service_1.BaseService
                 where,
                 include: {
                     parent: true,
+                    company: true,
                     _count: {
                         select: {
                             assets: true,
@@ -53,6 +54,7 @@ let LocationsService = class LocationsService extends base_service_1.BaseService
         const formatted = records.map((r) => ({
             ...r,
             parent: r.parent ? r.parent.name : 'None',
+            company: r.company ? r.company.name : 'N/A',
             people: 0,
             currentLocation: r.name,
             assignAsset: r._count.assets,

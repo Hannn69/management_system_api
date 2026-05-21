@@ -31,7 +31,7 @@ model Asset {
   checkedOutUserId  Int?
   checkedOutUser    User?        @relation("AssetCheckedOut", fields: [checkedOutUserId], references: [id])
   notes             String?      @db.Text
-  image             String?
+  image             String?      @db.LongText
   isRequestable     Boolean      @default(false)
   isByod            Boolean      @default(false)
   warrantyMonths    Int?
@@ -52,7 +52,16 @@ model User {
   id                    Int      @id @default(autoincrement())
   slug                  String   @unique @default(uuid())
   email                 String   @unique
+  username              String   @unique
   passwordHash          String
+  firstName             String?
+  lastName              String?
+  displayName           String?
+  loginEnabled          Boolean  @default(true)
+  companyId             Int?
+  company               Company? @relation(fields: [companyId], references: [id])
+  locationId            Int?
+  location              Location? @relation(fields: [locationId], references: [id])
   refreshTokenHash      String?
   refreshTokenExpiresAt DateTime?
   createdAt             DateTime @default(now())
@@ -115,13 +124,14 @@ model Company {
   phone       String?
   fax         String?
   email       String?
-  logo        String?
+  logo        String?      @db.LongText
   notes       String?      @db.Text
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   locations   Location[]
   departments Department[]
   assets      Asset[]
+  users       User[]
 }
 
 model Category {
@@ -133,7 +143,7 @@ model Category {
   useDefaultEula      Boolean      @default(true)
   requireConfirmation Boolean      @default(false)
   emailNotification   Boolean      @default(false)
-  image               String?
+  image               String?      @db.LongText
   notes               String?      @db.Text
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
@@ -149,7 +159,7 @@ model Manufacturer {
   warrantyLookupUrl String?
   supportPhone      String?
   supportEmail      String?
-  image             String?
+  image             String?      @db.LongText
   notes             String?      @db.Text
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
@@ -170,7 +180,7 @@ model Supplier {
   state       String?
   country     String?
   zip         String?
-  image       String?
+  image       String?  @db.LongText
   notes       String?  @db.Text
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -196,12 +206,13 @@ model Location {
   state     String?
   country   String?
   zip       String?
-  image     String?
+  image     String?   @db.LongText
   notes     String?   @db.Text
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   departments Department[]
   assets      Asset[]
+  users       User[]
 }
 
 model Department {
@@ -215,7 +226,7 @@ model Department {
   managerId  Int?
   locationId Int?
   location   Location? @relation(fields: [locationId], references: [id])
-  image      String?
+  image      String?   @db.LongText
   notes      String?   @db.Text
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
@@ -235,7 +246,7 @@ model AssetModel {
   requireSerialNumber Boolean      @default(false)
   eolMonths          Int?
   fieldsetId         Int?
-  image              String?
+  image              String?      @db.LongText
   notes              String?      @db.Text
   isRequestable      Boolean      @default(false)
   createdAt          DateTime     @default(now())

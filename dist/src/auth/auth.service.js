@@ -66,8 +66,13 @@ let AuthService = class AuthService {
             throw new common_1.BadRequestException('Email already registered.');
         }
         const passwordHash = await bcrypt.hash(password, 12);
+        const username = normalizedEmail.split('@')[0];
         const user = await this.prisma.user.create({
-            data: { email: normalizedEmail, passwordHash },
+            data: {
+                email: normalizedEmail,
+                passwordHash,
+                username,
+            },
         });
         const tokens = await this.issueTokens(user.id, user.email);
         await this.storeRefreshToken(user.id, tokens.refreshToken, tokens.refreshTtlMs);

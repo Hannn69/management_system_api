@@ -8,6 +8,7 @@ export declare class LocationsService extends BaseService<Location, CreateLocati
     findAll(query?: BaseQuery): Promise<{
         records: {
             parent: string;
+            company: string;
             people: number;
             currentLocation: string;
             assignAsset: number;
@@ -23,6 +24,7 @@ export declare class LocationsService extends BaseService<Location, CreateLocati
             name: string;
             id: number;
             slug: string;
+            companyId: number | null;
             createdAt: Date;
             updatedAt: Date;
             phone: string | null;
@@ -30,7 +32,6 @@ export declare class LocationsService extends BaseService<Location, CreateLocati
             notes: string | null;
             parentId: number | null;
             managerId: number | null;
-            companyId: number | null;
             currency: string | null;
             address: string | null;
             address2: string | null;

@@ -42,17 +42,16 @@ async function main() {
     console.log("📝 Creating users...");
     const passwordHash = await bcrypt.hash("password123", 12);
     const usersData = [
-        { email: "admin@example.com", passwordHash },
-        { email: "manager@example.com", passwordHash },
-        { email: "analyst@example.com", passwordHash },
-        { email: "sonvirak@example.com", passwordHash },
-        { email: "alice@example.com", passwordHash },
-        { email: "bob@example.com", passwordHash },
-        { email: "charlie@example.com", passwordHash },
-        { email: "david@example.com", passwordHash },
-        { email: "eve@example.com", passwordHash },
-        { email: "frank@example.com", passwordHash },
-        { email: "grace@example.com", passwordHash },
+        { email: "admin@example.com", passwordHash, username: "admin" },
+        { email: "manager@example.com", passwordHash, username: "manager" },
+        { email: "user@example.com", passwordHash, username: "user" },
+        { email: "alice@example.com", passwordHash, username: "alice" },
+        { email: "bob@example.com", passwordHash, username: "bob" },
+        { email: "charlie@example.com", passwordHash, username: "charlie" },
+        { email: "david@example.com", passwordHash, username: "david" },
+        { email: "eve@example.com", passwordHash, username: "eve" },
+        { email: "frank@example.com", passwordHash, username: "frank" },
+        { email: "grace@example.com", passwordHash, username: "grace" },
     ];
     const dbUsers = [];
     for (const user of usersData) {
@@ -66,99 +65,91 @@ async function main() {
     console.log(`✓ Created ${dbUsers.length} users`);
     console.log("🏢 Creating companies...");
     const companiesData = [
-        "Tech Corp", "Global Solutions", "Creative Minds", "Nova Systems", "Echo Industries",
-        "Vertex Group", "Zenith Holdings", "Quantum Inc", "Summit Enterprises", "Horizon Ltd",
-        "Pinnacle Co", "Alpha Omega"
+        { name: "Tech Corp", email: "contact@techcorp.com", phone: "555-0101" },
+        { name: "Global Solutions", email: "info@globalsolutions.com", phone: "555-0102" },
+        { name: "Innovate Inc", email: "hello@innovate.com", phone: "555-0103" },
+        { name: "Apex Ltd", email: "support@apexltd.com", phone: "555-0104" },
+        { name: "Nexus Systems", email: "contact@nexus.io", phone: "555-0105" },
+        { name: "Zenith Enterprises", email: "office@zenith.com", phone: "555-0106" },
+        { name: "Quantum Group", email: "quantum@qg.com", phone: "555-0107" },
+        { name: "Summit Partners", email: "summit@summit.com", phone: "555-0108" },
+        { name: "Velocity Web", email: "velocity@web.com", phone: "555-0109" },
+        { name: "Titan Industries", email: "titan@industries.com", phone: "555-0110" },
+        { name: "Ember Labs", email: "ember@labs.com", phone: "555-0111" },
+        { name: "Solaris Co", email: "solaris@co.com", phone: "555-0112" },
     ];
     const dbCompanies = [];
-    for (const name of companiesData) {
-        const email = `contact@${name.toLowerCase().replace(/\s+/g, "")}.com`;
-        const phone = `1-800-${Math.floor(1000 + Math.random() * 9000)}`;
-        const fax = `1-800-${Math.floor(1000 + Math.random() * 9000)}`;
-        const notes = `${name} is a leading global organization with specialized departments.`;
+    for (const company of companiesData) {
         const created = await prisma.company.upsert({
-            where: { name },
-            update: { email, phone, fax, notes },
-            create: {
-                name,
-                slug: (0, crypto_1.randomUUID)(),
-                email,
-                phone,
-                fax,
-                notes,
-            },
+            where: { name: company.name },
+            update: {},
+            create: { ...company, slug: (0, crypto_1.randomUUID)() },
         });
         dbCompanies.push(created);
     }
     console.log(`✓ Created/Updated ${dbCompanies.length} companies`);
     console.log("📍 Creating locations...");
     const locationsData = [
-        { name: "New York Office", city: "New York", country: "USA" },
-        { name: "London Studio", city: "London", country: "UK" },
-        { name: "Tokyo Hub", city: "Tokyo", country: "Japan" },
-        { name: "Paris Branch", city: "Paris", country: "France" },
-        { name: "Berlin Site", city: "Berlin", country: "Germany" },
-        { name: "Sydney HQ", city: "Sydney", country: "Australia" },
-        { name: "Toronto Base", city: "Toronto", country: "Canada" },
-        { name: "Dubai Tower", city: "Dubai", country: "UAE" },
-        { name: "Singapore Point", city: "Singapore", country: "Singapore" },
-        { name: "Seoul Center", city: "Seoul", country: "South Korea" },
-        { name: "Mumbai Tech", city: "Mumbai", country: "India" },
+        { name: "New York HQ", city: "New York", country: "USA", address: "123 Wall St" },
+        { name: "London Studio", city: "London", country: "UK", address: "45 Baker St" },
+        { name: "Tokyo Hub", city: "Tokyo", country: "Japan", address: "7-8-9 Shibuya" },
+        { name: "Berlin Lab", city: "Berlin", country: "Germany", address: "10 Alexanderplatz" },
+        { name: "Singapore Office", city: "Singapore", country: "Singapore", address: "1 Marina Blvd" },
+        { name: "Sydney Branch", city: "Sydney", country: "Australia", address: "20 Pitt St" },
+        { name: "Paris Design", city: "Paris", country: "France", address: "30 Champs-Élysées" },
+        { name: "Toronto Dev", city: "Toronto", country: "Canada", address: "40 Bay St" },
+        { name: "Dubai Sales", city: "Dubai", country: "UAE", address: "50 Burj Blvd" },
+        { name: "Seoul R&D", city: "Seoul", country: "South Korea", address: "60 Gangnam-daero" },
+        { name: "Phnom Penh HQ", city: "Phnom Penh", country: "Cambodia", address: "70 Monivong Blvd" },
     ];
     const dbLocations = [];
-    for (let i = 0; i < locationsData.length; i++) {
-        const loc = locationsData[i];
+    for (const loc of locationsData) {
         const created = await prisma.location.upsert({
             where: { name: loc.name },
             update: {},
-            create: {
-                ...loc,
-                slug: (0, crypto_1.randomUUID)(),
-                address: `${100 + i} Main St`,
-                zip: `ZIP-${1000 + i}`,
-                currency: i % 2 === 0 ? "USD" : "EUR",
-                companyId: dbCompanies[i % dbCompanies.length].id,
-            },
+            create: { ...loc, slug: (0, crypto_1.randomUUID)(), companyId: dbCompanies[0].id },
         });
         dbLocations.push(created);
     }
-    console.log(`✓ Created ${dbLocations.length} locations`);
+    console.log(`✓ Created/Updated ${dbLocations.length} locations`);
     console.log("🏢 Creating departments...");
     const departmentsData = [
-        "Engineering", "Sales", "Marketing", "Human Resources", "Finance",
-        "IT Support", "Legal", "Operations", "Research & Development", "Customer Success",
-        "Product Management", "Quality Assurance"
+        { name: "Engineering" },
+        { name: "Sales" },
+        { name: "Marketing" },
+        { name: "Finance" },
+        { name: "Human Resources" },
+        { name: "Operations" },
+        { name: "Product" },
+        { name: "Design" },
+        { name: "Legal" },
+        { name: "Customer Support" },
+        { name: "IT Security" },
+        { name: "Data Science" },
     ];
     const dbDepartments = [];
-    for (let i = 0; i < departmentsData.length; i++) {
-        const name = departmentsData[i];
+    for (const dept of departmentsData) {
         const created = await prisma.department.upsert({
-            where: { name },
+            where: { name: dept.name },
             update: {},
-            create: {
-                name,
-                slug: (0, crypto_1.randomUUID)(),
-                companyId: dbCompanies[i % dbCompanies.length].id,
-                locationId: dbLocations[i % dbLocations.length].id,
-                notes: `The ${name} department handles key business functions.`,
-            },
+            create: { ...dept, slug: (0, crypto_1.randomUUID)(), companyId: dbCompanies[0].id },
         });
         dbDepartments.push(created);
     }
-    console.log(`✓ Created ${dbDepartments.length} departments`);
-    console.log("📦 Creating categories...");
+    console.log(`✓ Created/Updated ${dbDepartments.length} departments`);
+    console.log("🏷️ Creating categories...");
     const categoriesData = [
         { name: "Laptops", type: "Asset" },
         { name: "Phones", type: "Asset" },
         { name: "Monitors", type: "Asset" },
-        { name: "Tablets", type: "Asset" },
-        { name: "Printers", type: "Asset" },
-        { name: "Software Licenses", type: "License" },
         { name: "Keyboards", type: "Accessory" },
         { name: "Mice", type: "Accessory" },
-        { name: "RAM Modules", type: "Component" },
-        { name: "Office Supplies", type: "Consumable" },
-        { name: "Networking Gear", type: "Asset" },
+        { name: "Office Chairs", type: "Asset" },
+        { name: "Networking", type: "Asset" },
+        { name: "Software Licenses", type: "Asset" },
+        { name: "Consumables", type: "Consumable" },
+        { name: "Components", type: "Component" },
+        { name: "Server Hardware", type: "Asset" },
     ];
     const dbCategories = [];
     for (const cat of categoriesData) {
@@ -169,144 +160,144 @@ async function main() {
         });
         dbCategories.push(created);
     }
-    console.log(`✓ Created ${dbCategories.length} categories`);
+    console.log(`✓ Created/Updated ${dbCategories.length} categories`);
     console.log("🏭 Creating manufacturers...");
     const manufacturersData = [
-        "Apple", "Dell", "Samsung", "HP", "Lenovo", "Microsoft", "Asus", "Logitech", "Cisco", "Sony", "LG"
+        { name: "Apple", url: "https://apple.com" },
+        { name: "Dell", url: "https://dell.com" },
+        { name: "HP", url: "https://hp.com" },
+        { name: "Lenovo", url: "https://lenovo.com" },
+        { name: "Samsung", url: "https://samsung.com" },
+        { name: "Logitech", url: "https://logitech.com" },
+        { name: "Cisco", url: "https://cisco.com" },
+        { name: "Microsoft", url: "https://microsoft.com" },
+        { name: "Asus", url: "https://asus.com" },
+        { name: "Sony", url: "https://sony.com" },
+        { name: "LG", url: "https://lg.com" },
     ];
     const dbManufacturers = [];
-    for (const name of manufacturersData) {
+    for (const manu of manufacturersData) {
         const created = await prisma.manufacturer.upsert({
-            where: { name },
+            where: { name: manu.name },
             update: {},
-            create: {
-                name,
-                slug: (0, crypto_1.randomUUID)(),
-                url: `https://www.${name.toLowerCase()}.com`,
-                notes: `Main manufacturer for ${name} products.`,
-            },
+            create: { ...manu, slug: (0, crypto_1.randomUUID)() },
         });
         dbManufacturers.push(created);
     }
-    console.log(`✓ Created ${dbManufacturers.length} manufacturers`);
-    console.log("🛒 Creating suppliers...");
+    console.log(`✓ Created/Updated ${dbManufacturers.length} manufacturers`);
+    console.log("🚚 Creating suppliers...");
     const suppliersData = [
-        "Amazon Business", "CDW", "Best Buy Enterprise", "Newegg Business", "B&H Photo",
-        "Staples Advantage", "Office Depot", "Walmart Global", "Direct Tech", "Supply Pro", "Global Equip"
+        { name: "Amazon Business", contactName: "Sales Team" },
+        { name: "CDW", contactName: "Account Manager" },
+        { name: "Best Buy", contactName: "Enterprise Sales" },
+        { name: "B&H Photo", contactName: "Pro Sales" },
+        { name: "Newegg", contactName: "Support" },
+        { name: "Direct Systems", contactName: "Jane Smith" },
+        { name: "Office Depot", contactName: "Order Desk" },
+        { name: "Global Tech", contactName: "Mike Lee" },
+        { name: "Insight", contactName: "Global Sales" },
+        { name: "Zones", contactName: "Enterprise" },
+        { name: "Connection", contactName: "Sales" },
     ];
     const dbSuppliers = [];
-    for (const name of suppliersData) {
+    for (const sup of suppliersData) {
         const created = await prisma.supplier.upsert({
-            where: { name },
+            where: { name: sup.name },
             update: {},
-            create: {
-                name,
-                slug: (0, crypto_1.randomUUID)(),
-                email: `sales@${name.toLowerCase().replace(/\s+/g, "")}.com`,
-                notes: `Reliable supplier of hardware and software.`,
-            },
+            create: { ...sup, slug: (0, crypto_1.randomUUID)() },
         });
         dbSuppliers.push(created);
     }
-    console.log(`✓ Created ${dbSuppliers.length} suppliers`);
+    console.log(`✓ Created/Updated ${dbSuppliers.length} suppliers`);
     console.log("💻 Creating asset models...");
     const assetModelsData = [
-        { name: "MacBook Pro 14", categoryIdx: 0, manufacturerIdx: 0, modelNumber: "A2442" },
-        { name: "MacBook Air M2", categoryIdx: 0, manufacturerIdx: 0, modelNumber: "A2681" },
-        { name: "Dell XPS 15", categoryIdx: 0, manufacturerIdx: 1, modelNumber: "X9520" },
-        { name: "Dell Latitude 5420", categoryIdx: 0, manufacturerIdx: 1, modelNumber: "L5420" },
-        { name: "iPhone 13 Pro", categoryIdx: 1, manufacturerIdx: 0, modelNumber: "A2638" },
-        { name: "iPhone 14", categoryIdx: 1, manufacturerIdx: 0, modelNumber: "A2881" },
-        { name: "Samsung Galaxy S22", categoryIdx: 1, manufacturerIdx: 2, modelNumber: "SM-S901" },
-        { name: "Samsung G7 Monitor", categoryIdx: 2, manufacturerIdx: 2, modelNumber: "G7-32" },
-        { name: "HP EliteDisplay", categoryIdx: 2, manufacturerIdx: 3, modelNumber: "E243" },
-        { name: "iPad Pro 11", categoryIdx: 3, manufacturerIdx: 0, modelNumber: "A2377" },
-        { name: "Microsoft Surface Pro 8", categoryIdx: 3, manufacturerIdx: 5, modelNumber: "SP8-01" },
-        { name: "Logitech MX Master 3", categoryIdx: 7, manufacturerIdx: 7, modelNumber: "MX-M3" },
-        { name: "Logitech Craft Keyboard", categoryIdx: 6, manufacturerIdx: 7, modelNumber: "LC-01" },
-        { name: "Cisco Catalyst 9300", categoryIdx: 10, manufacturerIdx: 8, modelNumber: "C9300" },
-        { name: "Sony WH-1000XM4", categoryIdx: 7, manufacturerIdx: 9, modelNumber: "XM4-01" },
+        { name: "MacBook Pro 14", modelNumber: "MBP14-2023" },
+        { name: "MacBook Air M2", modelNumber: "MBA-M2" },
+        { name: "Dell XPS 15", modelNumber: "XPS15-9530" },
+        { name: "ThinkPad X1 Carbon", modelNumber: "TP-X1-C11" },
+        { name: "iPhone 14 Pro", modelNumber: "IP14-PRO" },
+        { name: "iPhone 13", modelNumber: "IP13" },
+        { name: "iPad Pro 12.9", modelNumber: "IPAD-P12" },
+        { name: "Dell UltraSharp 27", modelNumber: "U2723QE" },
+        { name: "HP EliteBook 840", modelNumber: "EB840-G9" },
+        { name: "Logitech MX Master 3S", modelNumber: "MX-M3S" },
+        { name: "Cisco Catalyst 9200", modelNumber: "C9200L" },
+        { name: "Samsung Odyssey G9", modelNumber: "G9-ULTRA" },
+        { name: "Microsoft Surface Pro 9", modelNumber: "SF-P9" },
+        { name: "Asus ROG Zephyrus", modelNumber: "ROG-G14" },
+        { name: "Sony WH-1000XM5", modelNumber: "WH1000XM5" },
     ];
     const dbAssetModels = [];
-    for (const modelData of assetModelsData) {
+    for (const am of assetModelsData) {
         const created = await prisma.assetModel.upsert({
-            where: { name: modelData.name },
+            where: { name: am.name },
             update: {},
             create: {
-                name: modelData.name,
+                ...am,
                 slug: (0, crypto_1.randomUUID)(),
-                categoryId: dbCategories[modelData.categoryIdx].id,
-                manufacturerId: dbManufacturers[modelData.manufacturerIdx].id,
-                modelNumber: modelData.modelNumber,
+                categoryId: dbCategories[0].id,
+                manufacturerId: dbManufacturers[0].id,
             },
         });
         dbAssetModels.push(created);
     }
-    console.log(`✓ Created ${dbAssetModels.length} asset models`);
-    console.log("🏷️  Creating status labels...");
+    console.log(`✓ Created/Updated ${dbAssetModels.length} asset models`);
+    console.log("📊 Creating status labels...");
     const statusLabelsData = [
         { name: "Ready to Deploy", type: "Deployable" },
         { name: "Deployed", type: "Deployable" },
-        { name: "Pending", type: "Pending" },
-        { name: "Archive", type: "Archived" },
-        { name: "Broken - Not Fixable", type: "Undeployable" },
-        { name: "Lost/Stolen", type: "Undeployable" },
-        { name: "In Repair", type: "Undeployable" },
-        { name: "Out for Diagnostic", type: "Undeployable" },
-        { name: "Under Audit", type: "Pending" },
+        { name: "In Repair", type: "Pending" },
+        { name: "Broken", type: "Undeployable" },
+        { name: "Lost/Stolen", type: "Archived" },
         { name: "Retired", type: "Archived" },
+        { name: "Out for Maintenance", type: "Pending" },
+        { name: "Testing", type: "Pending" },
+        { name: "Storage", type: "Deployable" },
+        { name: "Obsolete", type: "Archived" },
     ];
     const dbStatusLabels = [];
-    for (const label of statusLabelsData) {
+    for (const sl of statusLabelsData) {
         const created = await prisma.statusLabel.upsert({
-            where: { name: label.name },
+            where: { name: sl.name },
             update: {},
-            create: { ...label, slug: (0, crypto_1.randomUUID)() },
+            create: { ...sl, slug: (0, crypto_1.randomUUID)() },
         });
         dbStatusLabels.push(created);
     }
     console.log(`✓ Created ${dbStatusLabels.length} status labels`);
     console.log("📦 Creating assets...");
     for (let i = 1; i <= 20; i++) {
-        const assetTag = `AST-${String(i).padStart(5, "0")}`;
-        const modelIdx = i % dbAssetModels.length;
-        const statusIdx = i % dbStatusLabels.length;
-        const userIdx = i % 2 === 0 ? (i % dbUsers.length) : null;
-        await prisma.asset.upsert({
-            where: { assetTag },
-            update: {},
-            create: {
-                assetTag,
-                slug: (0, crypto_1.randomUUID)(),
-                name: `${dbAssetModels[modelIdx].name} - ${i}`,
-                modelId: dbAssetModels[modelIdx].id,
-                statusId: dbStatusLabels[statusIdx].id,
+        await prisma.asset.create({
+            data: {
+                assetTag: `AST-${10000 + i}`,
+                name: `Asset ${i}`,
+                serial: `SN-${(0, crypto_1.randomUUID)().slice(0, 8).toUpperCase()}`,
+                modelId: dbAssetModels[i % dbAssetModels.length].id,
+                statusId: dbStatusLabels[i % dbStatusLabels.length].id,
                 companyId: dbCompanies[i % dbCompanies.length].id,
                 locationId: dbLocations[i % dbLocations.length].id,
                 supplierId: dbSuppliers[i % dbSuppliers.length].id,
-                checkedOutUserId: userIdx !== null ? dbUsers[userIdx].id : null,
-                purchaseCost: 500 + Math.random() * 2000,
-                purchaseDate: new Date(),
-                notes: `Dummy asset record #${i}`,
+                checkedOutUserId: dbUsers[i % dbUsers.length].id,
+                notes: `Sample asset ${i} for testing.`,
             },
         });
     }
     console.log(`✓ Created 20 assets`);
     console.log("📋 Creating tasks...");
     for (let i = 1; i <= 20; i++) {
-        const key = `TASK-${i}`;
-        await prisma.task.upsert({
-            where: { key },
-            update: {},
-            create: {
-                key,
-                slug: (0, crypto_1.randomUUID)(),
-                summary: `Maintenance Task ${i}: Check equipment stability`,
+        await prisma.task.create({
+            data: {
+                key: `TASK-${i}`,
+                summary: `Maintenance task ${i}`,
+                description: `Perform regular maintenance for asset bundle ${i}`,
+                status: i % 3 === 0 ? "Done" : i % 2 === 0 ? "In progress" : "To do",
                 userId: dbUsers[i % dbUsers.length].id,
                 createdBy: dbUsers[0].id,
                 updatedBy: dbUsers[0].id,
-                status: i % 3 === 0 ? "Done" : i % 2 === 0 ? "In Progress" : "To do",
-            }
+                space: "Inventory",
+                workType: "Maintenance",
+                priority: "High",
+            },
         });
     }
     console.log(`✓ Created 20 tasks`);
@@ -315,9 +306,10 @@ async function main() {
         await prisma.notification.create({
             data: {
                 userId: dbUsers[i % dbUsers.length].id,
-                type: i % 2 === 0 ? "alert" : "info",
-                message: `Notification ${i}: System update successfully applied to your account.`,
-            }
+                type: i % 4 === 0 ? "ALERT" : i % 2 === 0 ? "INFO" : "WARNING",
+                message: `System notification ${i} for your review.`,
+                read: i % 5 === 0,
+            },
         });
     }
     console.log(`✓ Created 20 notifications`);

@@ -13,15 +13,15 @@ export declare class DepartmentsService extends BaseService<Department, CreateDe
             name: string;
             id: number;
             slug: string;
+            companyId: number | null;
+            locationId: number | null;
             createdAt: Date;
             updatedAt: Date;
             phone: string | null;
             fax: string | null;
             notes: string | null;
             managerId: number | null;
-            companyId: number | null;
             image: string | null;
-            locationId: number | null;
         }[];
         total: number;
     }>;
