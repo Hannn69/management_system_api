@@ -9,7 +9,9 @@ const express_1 = require("express");
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const app_module_1 = require("./app.module");
 async function bootstrap() {
-    const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    const app = await core_1.NestFactory.create(app_module_1.AppModule, {
+        bodyParser: false,
+    });
     app.use((0, cookie_parser_1.default)());
     app.use((0, express_1.json)({ limit: '10mb' }));
     app.use((0, express_1.urlencoded)({ limit: '10mb', extended: true }));
@@ -29,7 +31,17 @@ async function bootstrap() {
         credentials: true,
     });
     const port = Number(process.env.PORT ?? 8080);
-    await app.listen(port);
+    try {
+        await app.listen(port);
+    }
+    catch (error) {
+        if (error.code === 'EADDRINUSE') {
+            console.error(`Port ${port} is already in use. Stop the other process or set PORT to a different value in .env before starting the API.`);
+            await app.close();
+            process.exit(1);
+        }
+        throw error;
+    }
 }
 void bootstrap();
 //# sourceMappingURL=main.js.map

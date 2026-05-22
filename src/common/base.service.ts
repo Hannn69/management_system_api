@@ -86,6 +86,7 @@ export abstract class BaseService<T, CreateDto, UpdateDto> {
         },
       });
     } catch (error: any) {
+      console.error(`[BaseService] Error creating ${this.modelName}:`, error);
       if (error.code === 'P2002') {
         const field = error.meta?.target?.[0] || 'field';
         throw new BadRequestException(`${field} must be unique`);

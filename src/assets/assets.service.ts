@@ -18,6 +18,25 @@ export class AssetsService extends BaseService<
     super(prisma, 'asset');
   }
 
+  private formatAssetRecord(record: any) {
+    const purchaseCost = record.purchaseCost ? Number(record.purchaseCost) : 0;
+
+    return {
+      ...record,
+      model: record.model?.name ?? record.model ?? null,
+      category: record.category?.name ?? 'Asset',
+      status: record.status?.name ?? record.status ?? null,
+      checkedOutTo: record.checkedOutUser
+        ? record.checkedOutUser.email
+        : record.checkedOutTo ?? null,
+      location: record.location?.name ?? record.location ?? 'N/A',
+      purchaseCost,
+      currentValue: record.currentValue
+        ? Number(record.currentValue)
+        : purchaseCost * 0.8,
+    };
+  }
+
   async findAll(query: AssetQuery = {}) {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 10;
@@ -78,22 +97,12 @@ export class AssetsService extends BaseService<
       this.prisma.asset.count({ where }),
     ]);
 
-    // Format for frontend
-    const formattedRecords = records.map((r) => ({
-      ...r,
-      model: r.model.name,
-      category: 'Asset',
-      status: r.status.name,
-      checkedOutTo: r.checkedOutUser ? r.checkedOutUser.email : null,
-      location: r.location ? r.location.name : 'N/A',
-      purchaseCost: r.purchaseCost ? Number(r.purchaseCost) : 0,
-      currentValue: r.purchaseCost ? Number(r.purchaseCost) * 0.8 : 0,
-    }));
+    const formattedRecords = records.map((r) => this.formatAssetRecord(r));
 
     return { records: formattedRecords, total };
   }
 
-  async findOne(idOrSlug: string | number): Promise<Asset> {
+  async findOne(idOrSlug: string | number): Promise<any> {
     // Check if idOrSlug is a pure numeric string/number
     const isNumeric =
       typeof idOrSlug === 'number' ||
@@ -119,7 +128,7 @@ export class AssetsService extends BaseService<
       throw new NotFoundException(`Asset not found`);
     }
 
-    return record;
+    return this.formatAssetRecord(record);
   }
 
   async create(data: CreateAssetDto, userId: number): Promise<Asset> {

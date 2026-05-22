@@ -19,6 +19,23 @@ let AssetsService = class AssetsService extends base_service_1.BaseService {
         super(prisma, 'asset');
         this.prisma = prisma;
     }
+    formatAssetRecord(record) {
+        const purchaseCost = record.purchaseCost ? Number(record.purchaseCost) : 0;
+        return {
+            ...record,
+            model: record.model?.name ?? record.model ?? null,
+            category: record.category?.name ?? 'Asset',
+            status: record.status?.name ?? record.status ?? null,
+            checkedOutTo: record.checkedOutUser
+                ? record.checkedOutUser.email
+                : record.checkedOutTo ?? null,
+            location: record.location?.name ?? record.location ?? 'N/A',
+            purchaseCost,
+            currentValue: record.currentValue
+                ? Number(record.currentValue)
+                : purchaseCost * 0.8,
+        };
+    }
     async findAll(query = {}) {
         const page = Number(query.page) || 1;
         const limit = Number(query.limit) || 10;
@@ -82,16 +99,7 @@ let AssetsService = class AssetsService extends base_service_1.BaseService {
             }),
             this.prisma.asset.count({ where }),
         ]);
-        const formattedRecords = records.map((r) => ({
-            ...r,
-            model: r.model.name,
-            category: 'Asset',
-            status: r.status.name,
-            checkedOutTo: r.checkedOutUser ? r.checkedOutUser.email : null,
-            location: r.location ? r.location.name : 'N/A',
-            purchaseCost: r.purchaseCost ? Number(r.purchaseCost) : 0,
-            currentValue: r.purchaseCost ? Number(r.purchaseCost) * 0.8 : 0,
-        }));
+        const formattedRecords = records.map((r) => this.formatAssetRecord(r));
         return { records: formattedRecords, total };
     }
     async findOne(idOrSlug) {
@@ -114,7 +122,7 @@ let AssetsService = class AssetsService extends base_service_1.BaseService {
         if (!record) {
             throw new common_1.NotFoundException(`Asset not found`);
         }
-        return record;
+        return this.formatAssetRecord(record);
     }
     async create(data, userId) {
         const assetTag = data.assetTag || `AST-${Date.now()}`;

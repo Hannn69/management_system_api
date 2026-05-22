@@ -5,9 +5,11 @@ import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bodyParser: false,
+  });
   app.use(cookieParser());
-  
+
   app.use(json({ limit: '10mb' }));
   app.use(urlencoded({ limit: '10mb', extended: true }));
 
@@ -34,6 +36,19 @@ async function bootstrap() {
   });
 
   const port = Number(process.env.PORT ?? 8080);
-  await app.listen(port);
+
+  try {
+    await app.listen(port);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'EADDRINUSE') {
+      console.error(
+        `Port ${port} is already in use. Stop the other process or set PORT to a different value in .env before starting the API.`,
+      );
+      await app.close();
+      process.exit(1);
+    }
+
+    throw error;
+  }
 }
 void bootstrap();

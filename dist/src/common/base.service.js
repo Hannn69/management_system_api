@@ -71,6 +71,7 @@ let BaseService = class BaseService {
             });
         }
         catch (error) {
+            console.error(`[BaseService] Error creating ${this.modelName}:`, error);
             if (error.code === 'P2002') {
                 const field = error.meta?.target?.[0] || 'field';
                 throw new common_1.BadRequestException(`${field} must be unique`);
