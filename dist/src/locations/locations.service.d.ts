@@ -6,42 +6,8 @@ export declare class LocationsService extends BaseService<Location, CreateLocati
     protected readonly prisma: PrismaService;
     constructor(prisma: PrismaService);
     findAll(query?: BaseQuery): Promise<{
-        records: {
-            parent: string;
-            company: string;
-            people: number;
-            currentLocation: string;
-            assignAsset: number;
-            accessories: number;
-            assignAccessories: number;
-            components: number;
-            consumables: number;
-            childLocation: number;
-            _count: {
-                assets: number;
-                children: number;
-            };
-            name: string;
-            id: number;
-            slug: string;
-            companyId: number | null;
-            createdAt: Date;
-            updatedAt: Date;
-            phone: string | null;
-            fax: string | null;
-            notes: string | null;
-            parentId: number | null;
-            managerId: number | null;
-            currency: string | null;
-            address: string | null;
-            address2: string | null;
-            city: string | null;
-            state: string | null;
-            country: string | null;
-            zip: string | null;
-            image: string | null;
-        }[];
-        total: number;
+        records: any;
+        total: any;
     }>;
     create(data: CreateLocationDto, userId: number): Promise<Location>;
 }

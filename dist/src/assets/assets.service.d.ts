@@ -10,8 +10,8 @@ export declare class AssetsService extends BaseService<Asset, CreateAssetDto, Up
     constructor(prisma: PrismaService);
     private formatAssetRecord;
     findAll(query?: AssetQuery): Promise<{
-        records: any[];
-        total: number;
+        records: any;
+        total: any;
     }>;
     findOne(idOrSlug: string | number): Promise<any>;
     create(data: CreateAssetDto, userId: number): Promise<Asset>;

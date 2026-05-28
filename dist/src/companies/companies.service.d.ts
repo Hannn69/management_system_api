@@ -6,30 +6,8 @@ export declare class CompaniesService extends BaseService<Company, CreateCompany
     protected readonly prisma: PrismaService;
     constructor(prisma: PrismaService);
     findAll(query?: BaseQuery): Promise<{
-        records: {
-            assets: number;
-            users: number;
-            licenses: number;
-            accessories: number;
-            consumables: number;
-            components: number;
-            _count: {
-                locations: number;
-                departments: number;
-                assets: number;
-            };
-            name: string;
-            id: number;
-            slug: string;
-            email: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            phone: string | null;
-            fax: string | null;
-            logo: string | null;
-            notes: string | null;
-        }[];
-        total: number;
+        records: any;
+        total: any;
     }>;
     create(data: CreateCompanyDto, userId: number): Promise<Company>;
 }

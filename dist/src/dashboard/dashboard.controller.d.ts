@@ -3,11 +3,11 @@ export declare class DashboardController {
     private readonly dashboardService;
     constructor(dashboardService: DashboardService);
     getSummary(): Promise<{
-        assetModels: number;
-        categories: number;
-        manufacturers: number;
-        suppliers: number;
-        inventoryTracked: number;
+        assetModels: any;
+        categories: any;
+        manufacturers: any;
+        suppliers: any;
+        inventoryTracked: any;
         openLicenses: number;
         accessoriesReady: number;
         supplyAlerts: number;

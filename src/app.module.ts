@@ -15,6 +15,8 @@ import { LocationsModule } from './locations/locations.module';
 import { CompaniesModule } from './companies/companies.module';
 import { StatusLabelsModule } from './status-labels/status-labels.module';
 import { AssetsModule } from './assets/assets.module';
+import { RolesModule } from './roles/roles.module';
+import { ModulesModule } from './modules/modules.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { AssetsModule } from './assets/assets.module';
     CompaniesModule,
     StatusLabelsModule,
     AssetsModule,
+    RolesModule,
+    ModulesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

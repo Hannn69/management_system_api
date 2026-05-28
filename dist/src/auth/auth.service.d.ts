@@ -14,22 +14,22 @@ export declare class AuthService {
     constructor(prisma: PrismaService, jwtService: JwtService, configService: ConfigService);
     register(email: string, password: string): Promise<{
         user: {
-            id: number;
-            email: string;
+            id: any;
+            email: any;
         };
         tokens: TokenBundle;
     }>;
     signIn(email: string, password: string): Promise<{
         user: {
-            id: number;
-            email: string;
+            id: any;
+            email: any;
         };
         tokens: TokenBundle;
     }>;
     refresh(refreshToken: string): Promise<{
         user: {
-            id: number;
-            email: string;
+            id: any;
+            email: any;
         };
         tokens: TokenBundle;
     }>;

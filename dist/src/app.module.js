@@ -24,6 +24,8 @@ const locations_module_1 = require("./locations/locations.module");
 const companies_module_1 = require("./companies/companies.module");
 const status_labels_module_1 = require("./status-labels/status-labels.module");
 const assets_module_1 = require("./assets/assets.module");
+const roles_module_1 = require("./roles/roles.module");
+const modules_module_1 = require("./modules/modules.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -44,6 +46,8 @@ exports.AppModule = AppModule = __decorate([
             companies_module_1.CompaniesModule,
             status_labels_module_1.StatusLabelsModule,
             assets_module_1.AssetsModule,
+            roles_module_1.RolesModule,
+            modules_module_1.ModulesModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

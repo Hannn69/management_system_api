@@ -7,38 +7,13 @@ export declare class AssetsController extends BaseController<Asset, CreateAssetD
     private readonly assetsService;
     constructor(assetsService: AssetsService);
     findAll(query: AssetQuery): Promise<{
-        records: any[];
-        total: number;
+        records: any;
+        total: any;
     }>;
     findOne(idOrSlug: string): Promise<{
         record: any;
     }>;
     update(idOrSlug: string, body: UpdateAssetDto, req: Request): Promise<{
-        record: {
-            name: string | null;
-            id: number;
-            slug: string;
-            companyId: number | null;
-            locationId: number | null;
-            createdAt: Date;
-            updatedAt: Date;
-            notes: string | null;
-            image: string | null;
-            isRequestable: boolean;
-            assetTag: string;
-            serial: string | null;
-            isByod: boolean;
-            warrantyMonths: number | null;
-            expectedCheckin: Date | null;
-            nextAuditDate: Date | null;
-            orderNumber: string | null;
-            purchaseDate: Date | null;
-            purchaseCost: import("@prisma/client/runtime/library").Decimal | null;
-            eolDate: Date | null;
-            modelId: number;
-            statusId: number;
-            supplierId: number | null;
-            checkedOutUserId: number | null;
-        };
+        record: $Result.DefaultSelection<import(".prisma/client").Prisma.$AssetPayload<$Extensions.DefaultArgs>>;
     }>;
 }

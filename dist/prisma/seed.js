@@ -37,8 +37,89 @@ const client_1 = require("@prisma/client");
 const bcrypt = __importStar(require("bcryptjs"));
 const crypto_1 = require("crypto");
 const prisma = new client_1.PrismaClient();
+function createSlug(name) {
+    return name
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+}
 async function main() {
     console.log("🌱 Seeding database with at least 10 records per table...");
+    console.log("📦 Creating permissions...");
+    const permissionsData = [
+        { name: "Companies", label: "Companies" },
+        { name: "Locations", label: "Locations" },
+        { name: "Departments", label: "Departments" },
+        { name: "Suppliers", label: "Suppliers" },
+        { name: "Manufacturers", label: "Manufacturers" },
+        { name: "Categories", label: "Categories" },
+        { name: "Asset Models", label: "Asset Models" },
+        { name: "Status Labels", label: "Status Labels" },
+        { name: "Roles & Permission", label: "Roles & Permissions" },
+        { name: "Users", label: "Users" },
+        { name: "Assets", label: "Assets" },
+    ];
+    const dbPermissions = [];
+    for (const perm of permissionsData) {
+        const created = await prisma.permission.upsert({
+            where: { name: perm.name },
+            update: {},
+            create: {
+                ...perm,
+                slug: createSlug(perm.name)
+            },
+        });
+        dbPermissions.push(created);
+    }
+    console.log(`✓ Created ${dbPermissions.length} permissions`);
+    console.log("👤 Creating roles...");
+    const rolesData = [
+        { name: "Admin", description: "Administrator with full access" },
+        { name: "Manager", description: "Manager with limited access" },
+        { name: "User", description: "Standard user with basic access" },
+        { name: "Viewer", description: "Read-only access" },
+    ];
+    const dbRoles = [];
+    for (const role of rolesData) {
+        const created = await prisma.role.upsert({
+            where: { name: role.name },
+            update: {},
+            create: {
+                ...role,
+                slug: createSlug(role.name),
+            },
+        });
+        dbRoles.push(created);
+    }
+    console.log(`✓ Created ${dbRoles.length} roles`);
+    console.log("🔐 Creating role permissions...");
+    for (const role of dbRoles) {
+        for (const permission of dbPermissions) {
+            const isAdmin = role.name === "Admin";
+            const slug = `${createSlug(role.name)}-${createSlug(permission.name)}`;
+            await prisma.rolePermission.upsert({
+                where: {
+                    slug: slug,
+                },
+                update: {
+                    create: isAdmin,
+                    read: isAdmin,
+                    update: isAdmin,
+                    delete: isAdmin,
+                },
+                create: {
+                    roleId: role.id,
+                    permissionId: permission.id,
+                    slug: slug,
+                    create: isAdmin,
+                    read: isAdmin,
+                    update: isAdmin,
+                    delete: isAdmin,
+                },
+            });
+        }
+    }
+    console.log(`✓ Created role permissions for all roles and permissions`);
     console.log("📝 Creating users...");
     const passwordHash = await bcrypt.hash("password123", 12);
     const usersData = [
