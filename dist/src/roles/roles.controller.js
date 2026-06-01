@@ -26,6 +26,12 @@ let RolesController = class RolesController {
     async getAllRoles() {
         return this.rolesService.getAllRoles();
     }
+    async getRoleUsers(id) {
+        return this.rolesService.getRoleUsers(parseInt(id));
+    }
+    async assignUsers(id, data) {
+        return this.rolesService.assignUsers(parseInt(id), data.userIds);
+    }
     async getRole(id) {
         return this.rolesService.getRole(parseInt(id));
     }
@@ -56,6 +62,21 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], RolesController.prototype, "getAllRoles", null);
+__decorate([
+    (0, common_1.Get)(':id/users'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], RolesController.prototype, "getRoleUsers", null);
+__decorate([
+    (0, common_1.Patch)(':id/users'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], RolesController.prototype, "assignUsers", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

@@ -43,6 +43,7 @@ export declare class UsersController {
             slug: string;
             createdAt: Date;
             updatedAt: Date;
+            roleId: number | null;
             email: string;
             username: string;
             passwordHash: string;
@@ -62,6 +63,7 @@ export declare class UsersController {
         slug: string;
         createdAt: Date;
         updatedAt: Date;
+        roleId: number | null;
         email: string;
         username: string;
         passwordHash: string;

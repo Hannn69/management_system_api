@@ -21,6 +21,52 @@ export declare class RolesController {
         createdAt: Date;
         updatedAt: Date;
     }[]>;
+    getRoleUsers(id: string): Promise<{
+        users: {
+            id: number;
+            slug: string;
+            email: string;
+            username: string;
+            firstName: string | null;
+            lastName: string | null;
+            displayName: string | null;
+            loginEnabled: boolean;
+        }[];
+        _count: {
+            users: number;
+        };
+    } & {
+        name: string;
+        id: number;
+        description: string | null;
+        slug: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    assignUsers(id: string, data: {
+        userIds: number[];
+    }): Promise<{
+        users: {
+            id: number;
+            slug: string;
+            email: string;
+            username: string;
+            firstName: string | null;
+            lastName: string | null;
+            displayName: string | null;
+            loginEnabled: boolean;
+        }[];
+        _count: {
+            users: number;
+        };
+    } & {
+        name: string;
+        id: number;
+        description: string | null;
+        slug: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
     getRole(id: string): Promise<{
         name: string;
         id: number;

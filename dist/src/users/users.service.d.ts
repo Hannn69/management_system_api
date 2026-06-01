@@ -43,6 +43,7 @@ export declare class UsersService extends BaseService<User, any, any> {
             slug: string;
             createdAt: Date;
             updatedAt: Date;
+            roleId: number | null;
             email: string;
             username: string;
             passwordHash: string;

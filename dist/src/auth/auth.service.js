@@ -48,6 +48,7 @@ const config_1 = require("@nestjs/config");
 const jwt_1 = require("@nestjs/jwt");
 const bcrypt = __importStar(require("bcryptjs"));
 const prisma_service_1 = require("../prisma/prisma.service");
+const INVALID_CREDENTIALS_MESSAGE = 'Email or password is incorrect.';
 let AuthService = class AuthService {
     prisma;
     jwtService;
@@ -84,11 +85,11 @@ let AuthService = class AuthService {
             where: { email: normalizedEmail },
         });
         if (!user) {
-            throw new common_1.UnauthorizedException('Invalid credentials.');
+            throw new common_1.UnauthorizedException(INVALID_CREDENTIALS_MESSAGE);
         }
         const matches = await bcrypt.compare(password, user.passwordHash);
         if (!matches) {
-            throw new common_1.UnauthorizedException('Invalid credentials.');
+            throw new common_1.UnauthorizedException(INVALID_CREDENTIALS_MESSAGE);
         }
         const tokens = await this.issueTokens(user.id, user.email);
         await this.storeRefreshToken(user.id, tokens.refreshToken, tokens.refreshTtlMs);

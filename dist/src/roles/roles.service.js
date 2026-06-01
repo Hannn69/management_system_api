@@ -59,8 +59,59 @@ let RolesService = class RolesService {
         return this.prisma.role.findMany({
             include: {
                 rolePermissions: true,
+                _count: {
+                    select: { users: true },
+                },
             },
         });
+    }
+    async getRoleUsers(id) {
+        const role = await this.prisma.role.findUnique({
+            where: { id },
+            include: {
+                users: {
+                    select: {
+                        id: true,
+                        slug: true,
+                        email: true,
+                        username: true,
+                        firstName: true,
+                        lastName: true,
+                        displayName: true,
+                        loginEnabled: true,
+                    },
+                    orderBy: { username: 'asc' },
+                },
+                _count: {
+                    select: { users: true },
+                },
+            },
+        });
+        if (!role) {
+            throw new common_1.NotFoundException('Role not found');
+        }
+        return role;
+    }
+    async assignUsers(id, userIds) {
+        if (!Array.isArray(userIds) || userIds.some((userId) => !Number.isInteger(userId))) {
+            throw new common_1.BadRequestException('userIds must be an array of integers');
+        }
+        const role = await this.prisma.role.findUnique({ where: { id } });
+        if (!role) {
+            throw new common_1.NotFoundException('Role not found');
+        }
+        const uniqueUserIds = [...new Set(userIds)];
+        await this.prisma.$transaction([
+            this.prisma.user.updateMany({
+                where: { roleId: id },
+                data: { roleId: null },
+            }),
+            this.prisma.user.updateMany({
+                where: { id: { in: uniqueUserIds } },
+                data: { roleId: id },
+            }),
+        ]);
+        return this.getRoleUsers(id);
     }
     async updateRole(id, data) {
         return this.prisma.role.update({

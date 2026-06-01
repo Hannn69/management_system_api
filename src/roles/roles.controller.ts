@@ -17,6 +17,19 @@ export class RolesController {
     return this.rolesService.getAllRoles();
   }
 
+  @Get(':id/users')
+  async getRoleUsers(@Param('id') id: string) {
+    return this.rolesService.getRoleUsers(parseInt(id));
+  }
+
+  @Patch(':id/users')
+  async assignUsers(
+    @Param('id') id: string,
+    @Body() data: { userIds: number[] },
+  ) {
+    return this.rolesService.assignUsers(parseInt(id), data.userIds);
+  }
+
   @Get(':id')
   async getRole(@Param('id') id: string) {
     return this.rolesService.getRole(parseInt(id));

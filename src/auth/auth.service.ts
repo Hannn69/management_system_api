@@ -15,6 +15,8 @@ type TokenBundle = {
   refreshTtlMs: number;
 };
 
+const INVALID_CREDENTIALS_MESSAGE = 'Email or password is incorrect.';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -58,12 +60,12 @@ export class AuthService {
       where: { email: normalizedEmail },
     });
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials.');
+      throw new UnauthorizedException(INVALID_CREDENTIALS_MESSAGE);
     }
 
     const matches = await bcrypt.compare(password, user.passwordHash);
     if (!matches) {
-      throw new UnauthorizedException('Invalid credentials.');
+      throw new UnauthorizedException(INVALID_CREDENTIALS_MESSAGE);
     }
 
     const tokens = await this.issueTokens(user.id, user.email);
