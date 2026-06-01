@@ -6,13 +6,53 @@ export declare class ModulesController {
         name: string;
         label: string;
         description?: string;
-    }): Promise<$Result.DefaultSelection<import(".prisma/client").Prisma.$PermissionPayload<$Extensions.DefaultArgs>>>;
-    getAllModules(): Promise<$Result.DefaultSelection<import(".prisma/client").Prisma.$PermissionPayload<$Extensions.DefaultArgs>>[]>;
-    getModule(id: string): Promise<any>;
+    }): Promise<{
+        name: string;
+        id: number;
+        label: string;
+        description: string | null;
+        slug: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    getAllModules(): Promise<{
+        name: string;
+        id: number;
+        label: string;
+        description: string | null;
+        slug: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }[]>;
+    getModule(id: string): Promise<{
+        name: string;
+        id: number;
+        label: string;
+        description: string | null;
+        slug: string;
+        createdAt: Date;
+        updatedAt: Date;
+    } | null>;
     updateModule(id: string, data: {
         name?: string;
         label?: string;
         description?: string;
-    }): Promise<$Result.DefaultSelection<import(".prisma/client").Prisma.$PermissionPayload<$Extensions.DefaultArgs>>>;
-    deleteModule(id: string): Promise<$Result.DefaultSelection<import(".prisma/client").Prisma.$PermissionPayload<$Extensions.DefaultArgs>>>;
+    }): Promise<{
+        name: string;
+        id: number;
+        label: string;
+        description: string | null;
+        slug: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    deleteModule(id: string): Promise<{
+        name: string;
+        id: number;
+        label: string;
+        description: string | null;
+        slug: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
 }

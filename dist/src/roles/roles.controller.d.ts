@@ -5,19 +5,76 @@ export declare class RolesController {
     createRole(data: {
         name: string;
         description?: string;
-    }): Promise<$Result.DefaultSelection<import(".prisma/client").Prisma.$RolePayload<$Extensions.DefaultArgs>>>;
-    getAllRoles(): Promise<$Result.DefaultSelection<import(".prisma/client").Prisma.$RolePayload<$Extensions.DefaultArgs>>[]>;
-    getRole(id: string): Promise<any>;
+    }): Promise<{
+        name: string;
+        id: number;
+        description: string | null;
+        slug: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    getAllRoles(): Promise<{
+        name: string;
+        id: number;
+        description: string | null;
+        slug: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }[]>;
+    getRole(id: string): Promise<{
+        name: string;
+        id: number;
+        description: string | null;
+        slug: string;
+        createdAt: Date;
+        updatedAt: Date;
+    } | null>;
     updateRole(id: string, data: {
         name?: string;
         description?: string;
-    }): Promise<$Result.DefaultSelection<import(".prisma/client").Prisma.$RolePayload<$Extensions.DefaultArgs>>>;
-    deleteRole(id: string): Promise<$Result.DefaultSelection<import(".prisma/client").Prisma.$RolePayload<$Extensions.DefaultArgs>>>;
-    getRolePermissions(id: string): Promise<$Result.DefaultSelection<import(".prisma/client").Prisma.$RolePermissionPayload<$Extensions.DefaultArgs>>[]>;
+    }): Promise<{
+        name: string;
+        id: number;
+        description: string | null;
+        slug: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    deleteRole(id: string): Promise<{
+        name: string;
+        id: number;
+        description: string | null;
+        slug: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    getRolePermissions(id: string): Promise<{
+        id: number;
+        slug: string;
+        createdAt: Date;
+        updatedAt: Date;
+        create: boolean;
+        update: boolean;
+        roleId: number;
+        permissionId: number;
+        read: boolean;
+        delete: boolean;
+    }[]>;
     updateRolePermission(roleId: string, permissionId: string, data: {
         create?: boolean;
         read?: boolean;
         update?: boolean;
         delete?: boolean;
-    }): Promise<$Result.DefaultSelection<import(".prisma/client").Prisma.$RolePermissionPayload<$Extensions.DefaultArgs>>>;
+    }): Promise<{
+        id: number;
+        slug: string;
+        createdAt: Date;
+        updatedAt: Date;
+        create: boolean;
+        update: boolean;
+        roleId: number;
+        permissionId: number;
+        read: boolean;
+        delete: boolean;
+    }>;
 }

@@ -3,11 +3,11 @@ export declare class DashboardService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     getSummary(): Promise<{
-        assetModels: any;
-        categories: any;
-        manufacturers: any;
-        suppliers: any;
-        inventoryTracked: any;
+        assetModels: number;
+        categories: number;
+        manufacturers: number;
+        suppliers: number;
+        inventoryTracked: number;
         openLicenses: number;
         accessoriesReady: number;
         supplyAlerts: number;

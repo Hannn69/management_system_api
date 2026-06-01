@@ -4,8 +4,74 @@ export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
     findAll(query: any): Promise<{
-        records: any;
-        total: any;
+        records: ({
+            company: {
+                name: string;
+                id: number;
+                slug: string;
+                createdAt: Date;
+                updatedAt: Date;
+                email: string | null;
+                phone: string | null;
+                fax: string | null;
+                logo: string | null;
+                notes: string | null;
+            } | null;
+            location: {
+                name: string;
+                id: number;
+                slug: string;
+                createdAt: Date;
+                updatedAt: Date;
+                companyId: number | null;
+                phone: string | null;
+                fax: string | null;
+                notes: string | null;
+                parentId: number | null;
+                managerId: number | null;
+                currency: string | null;
+                address: string | null;
+                address2: string | null;
+                city: string | null;
+                state: string | null;
+                country: string | null;
+                zip: string | null;
+                image: string | null;
+            } | null;
+        } & {
+            id: number;
+            slug: string;
+            createdAt: Date;
+            updatedAt: Date;
+            email: string;
+            username: string;
+            passwordHash: string;
+            firstName: string | null;
+            lastName: string | null;
+            displayName: string | null;
+            loginEnabled: boolean;
+            companyId: number | null;
+            locationId: number | null;
+            refreshTokenHash: string | null;
+            refreshTokenExpiresAt: Date | null;
+        })[];
+        total: number;
     }>;
-    create(body: any, req: Request): Promise<$Result.DefaultSelection<import(".prisma/client").Prisma.$UserPayload<$Extensions.DefaultArgs>>>;
+    create(body: any, req: Request): Promise<{
+        id: number;
+        slug: string;
+        createdAt: Date;
+        updatedAt: Date;
+        email: string;
+        username: string;
+        passwordHash: string;
+        firstName: string | null;
+        lastName: string | null;
+        displayName: string | null;
+        loginEnabled: boolean;
+        companyId: number | null;
+        locationId: number | null;
+        refreshTokenHash: string | null;
+        refreshTokenExpiresAt: Date | null;
+    }>;
 }

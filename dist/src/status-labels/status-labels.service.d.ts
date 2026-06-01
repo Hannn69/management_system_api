@@ -6,8 +6,20 @@ export declare class StatusLabelsService extends BaseService<StatusLabel, Create
     protected readonly prisma: PrismaService;
     constructor(prisma: PrismaService);
     findAll(query?: BaseQuery): Promise<{
-        records: any;
-        total: any;
+        records: {
+            assets: number;
+            _count: {
+                assets: number;
+            };
+            name: string;
+            id: number;
+            slug: string;
+            createdAt: Date;
+            updatedAt: Date;
+            notes: string | null;
+            type: string;
+        }[];
+        total: number;
     }>;
     create(data: CreateSettingDto, userId: number): Promise<StatusLabel>;
 }

@@ -6,20 +6,20 @@ export declare class AuthController {
     constructor(authService: AuthService);
     register(body: AuthPayloadDto, res: Response): Promise<{
         user: {
-            id: any;
-            email: any;
+            id: number;
+            email: string;
         };
     }>;
     signIn(body: AuthPayloadDto, res: Response): Promise<{
         user: {
-            id: any;
-            email: any;
+            id: number;
+            email: string;
         };
     }>;
     refresh(req: Request, res: Response): Promise<{
         user: {
-            id: any;
-            email: any;
+            id: number;
+            email: string;
         };
     }>;
     logout(req: Request, res: Response): Promise<{
