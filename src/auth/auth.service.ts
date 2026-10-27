@@ -37,8 +37,8 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(password, 12);
     const username = normalizedEmail.split('@')[0];
     const user = await this.prisma.user.create({
-      data: { 
-        email: normalizedEmail, 
+      data: {
+        email: normalizedEmail,
         passwordHash,
         username,
       },
@@ -58,8 +58,9 @@ export class AuthService {
     const normalizedEmail = email.trim().toLowerCase();
     const user = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
+      omit: { passwordHash: false },
     });
-    if (!user) {
+    if (!user || !user.loginEnabled) {
       throw new UnauthorizedException(INVALID_CREDENTIALS_MESSAGE);
     }
 
@@ -75,7 +76,17 @@ export class AuthService {
       tokens.refreshTtlMs,
     );
 
-    return { user: { id: user.id, email: user.email }, tokens };
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        displayName: user.displayName,
+      },
+      tokens,
+    };
   }
 
   async refresh(refreshToken: string) {
@@ -96,6 +107,7 @@ export class AuthService {
       typeof payload.sub === 'string' ? Number(payload.sub) : payload.sub;
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
+      omit: { refreshTokenHash: false, refreshTokenExpiresAt: false },
     });
 
     if (!user || !user.refreshTokenHash || !user.refreshTokenExpiresAt) {

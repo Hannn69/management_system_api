@@ -7,7 +7,16 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   constructor() {
-    super();
+    // Secrets are left out of every query result unless a query opts back in with `omit: { field: false }`.
+    super({
+      omit: {
+        user: {
+          passwordHash: true,
+          refreshTokenHash: true,
+          refreshTokenExpiresAt: true,
+        },
+      },
+    });
   }
 
   async onModuleInit() {

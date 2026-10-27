@@ -57,6 +57,7 @@ model User {
   firstName             String?
   lastName              String?
   displayName           String?
+  phoneNumber           String?
   loginEnabled          Boolean  @default(true)
   companyId             Int?
   company               Company? @relation(fields: [companyId], references: [id])
@@ -86,7 +87,7 @@ model Task {
   workType    String?
   status      String   @default("To do")
   summary     String
-  description String?
+  description String? @db.Text
   assignee    String?
   reporter    String?
   priority    String?

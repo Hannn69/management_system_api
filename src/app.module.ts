@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -17,6 +19,7 @@ import { StatusLabelsModule } from './status-labels/status-labels.module';
 import { AssetsModule } from './assets/assets.module';
 import { RolesModule } from './roles/roles.module';
 import { ModulesModule } from './modules/modules.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -36,8 +39,9 @@ import { ModulesModule } from './modules/modules.module';
     AssetsModule,
     RolesModule,
     ModulesModule,
+    TasksModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
 export class AppModule {}

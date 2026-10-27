@@ -117,12 +117,16 @@ describe.each(resourceCases)('$label CRUD endpoints (e2e)', (resourceCase) => {
     service = {
       findAll: jest.fn().mockResolvedValue({ records: [{ id: 1 }], total: 1 }),
       findOne: jest.fn().mockResolvedValue({ id: 1, slug: 'record-slug' }),
-      create: jest
-        .fn()
-        .mockResolvedValue({ id: 1, slug: 'record-slug', ...resourceCase.validCreateBody }),
-      update: jest
-        .fn()
-        .mockResolvedValue({ id: 1, slug: 'record-slug', ...resourceCase.validUpdateBody }),
+      create: jest.fn().mockResolvedValue({
+        id: 1,
+        slug: 'record-slug',
+        ...resourceCase.validCreateBody,
+      }),
+      update: jest.fn().mockResolvedValue({
+        id: 1,
+        slug: 'record-slug',
+        ...resourceCase.validUpdateBody,
+      }),
       remove: jest.fn().mockResolvedValue({ success: true }),
     };
 
@@ -160,7 +164,10 @@ describe.each(resourceCases)('$label CRUD endpoints (e2e)', (resourceCase) => {
       .send(resourceCase.invalidCreateBody)
       .expect(201);
 
-    expect(service.create).toHaveBeenCalledWith(resourceCase.invalidCreateBody, 1);
+    expect(service.create).toHaveBeenCalledWith(
+      resourceCase.invalidCreateBody,
+      1,
+    );
     expect(response.body.record.id).toBe(1);
   });
 
@@ -170,7 +177,10 @@ describe.each(resourceCases)('$label CRUD endpoints (e2e)', (resourceCase) => {
       .send(resourceCase.validCreateBody)
       .expect(201);
 
-    expect(service.create).toHaveBeenCalledWith(resourceCase.validCreateBody, 1);
+    expect(service.create).toHaveBeenCalledWith(
+      resourceCase.validCreateBody,
+      1,
+    );
     expect(response.body.record.id).toBe(1);
   });
 
