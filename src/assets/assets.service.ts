@@ -1,8 +1,25 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Asset, Prisma } from '@prisma/client';
 import { BaseService, BaseQuery } from '../common/base.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAssetDto, UpdateAssetDto } from './dto/assets.dto';
+
+const assetInclude = {
+  model: { include: { category: true } },
+  status: true,
+  company: true,
+  location: true,
+  checkedOutUser: true,
+  supplier: true,
+} satisfies Prisma.AssetInclude;
+
+type AssetWithRelations = Prisma.AssetGetPayload<{
+  include: typeof assetInclude;
+}>;
 
 export interface AssetQuery extends BaseQuery {
   category?: string;
@@ -18,22 +35,18 @@ export class AssetsService extends BaseService<
     super(prisma, 'asset');
   }
 
-  private formatAssetRecord(record: any) {
+  private formatAssetRecord(record: AssetWithRelations) {
     const purchaseCost = record.purchaseCost ? Number(record.purchaseCost) : 0;
 
     return {
       ...record,
-      model: record.model?.name ?? record.model ?? null,
-      category: record.category?.name ?? 'Asset',
-      status: record.status?.name ?? record.status ?? null,
-      checkedOutTo: record.checkedOutUser
-        ? record.checkedOutUser.email
-        : record.checkedOutTo ?? null,
-      location: record.location?.name ?? record.location ?? 'N/A',
+      model: record.model.name,
+      category: record.model.category.name,
+      status: record.status.name,
+      checkedOutTo: record.checkedOutUser?.email ?? null,
+      location: record.location?.name ?? 'N/A',
       purchaseCost,
-      currentValue: record.currentValue
-        ? Number(record.currentValue)
-        : purchaseCost * 0.8,
+      currentValue: purchaseCost * 0.8,
     };
   }
 
@@ -55,22 +68,23 @@ export class AssetsService extends BaseService<
       ];
     }
 
+    // Tabs are driven by the status label type, not by hard-coded status names.
+    // "Deployed" and "Ready" are both Deployable: they differ by whether a user holds the asset.
     if (categoryFilter) {
       if (categoryFilter === 'deployed') {
+        where.status = { type: 'Deployable' };
         where.checkedOutUserId = { not: null };
       } else if (categoryFilter === 'ready') {
-        where.status = { name: 'Ready to Deploy' };
+        where.status = { type: 'Deployable' };
         where.checkedOutUserId = null;
       } else if (categoryFilter === 'pending') {
-        where.status = { name: 'Pending' };
+        where.status = { type: 'Pending' };
       } else if (categoryFilter === 'undeployable') {
-        where.status = {
-          name: { in: ['Broken - Not Fixable', 'Lost/Stolen'] },
-        };
+        where.status = { type: 'Undeployable' };
       } else if (categoryFilter === 'byod') {
         where.isByod = true;
       } else if (categoryFilter === 'archive') {
-        where.status = { name: 'Archive' };
+        where.status = { type: 'Archived' };
       } else if (categoryFilter === 'requestable') {
         where.isRequestable = true;
       } else if (categoryFilter === 'audit') {
@@ -83,13 +97,7 @@ export class AssetsService extends BaseService<
     const [records, total] = await Promise.all([
       this.prisma.asset.findMany({
         where,
-        include: {
-          model: true,
-          status: true,
-          company: true,
-          location: true,
-          checkedOutUser: true,
-        },
+        include: assetInclude,
         orderBy: { [sort]: order },
         skip: (page - 1) * limit,
         take: limit,
@@ -102,36 +110,48 @@ export class AssetsService extends BaseService<
     return { records: formattedRecords, total };
   }
 
-  async findOne(idOrSlug: string | number): Promise<any> {
-    // Check if idOrSlug is a pure numeric string/number
-    const isNumeric =
-      typeof idOrSlug === 'number' ||
-      (typeof idOrSlug === 'string' && /^\d+$/.test(idOrSlug));
+  private async loadAsset(idOrSlug: string | number) {
+    const isNumeric = typeof idOrSlug === 'number' || /^\d+$/.test(idOrSlug);
 
     const where: Prisma.AssetWhereInput = isNumeric
-      ? { id: typeof idOrSlug === 'string' ? parseInt(idOrSlug, 10) : idOrSlug }
-      : { slug: idOrSlug };
+      ? { id: Number(idOrSlug) }
+      : { slug: String(idOrSlug) };
 
     const record = await this.prisma.asset.findFirst({
       where,
-      include: {
-        model: true,
-        status: true,
-        company: true,
-        location: true,
-        checkedOutUser: true,
-        supplier: true,
-      },
+      include: assetInclude,
     });
 
     if (!record) {
       throw new NotFoundException(`Asset not found`);
     }
+    return record;
+  }
 
-    return this.formatAssetRecord(record);
+  // The base signature returns the raw model, but assets are returned in display form.
+
+  override async findOne(idOrSlug: string | number): Promise<any> {
+    return this.formatAssetRecord(await this.loadAsset(idOrSlug));
+  }
+
+  // Only Deployable statuses can be checked out to a user.
+  private async assertCheckoutAllowed(
+    statusId: number,
+    checkedOutUserId: number | null | undefined,
+  ) {
+    if (!checkedOutUserId) return;
+    const status = await this.prisma.statusLabel.findUnique({
+      where: { id: statusId },
+    });
+    if (status && status.type !== 'Deployable') {
+      throw new BadRequestException(
+        `Status "${status.name}" is ${status.type}, so the asset cannot be checked out to a user. Clear "Checkout to" or pick a Deployable status.`,
+      );
+    }
   }
 
   async create(data: CreateAssetDto, userId: number): Promise<Asset> {
+    await this.assertCheckoutAllowed(data.statusId, data.checkedOutUserId);
     const assetTag = data.assetTag || `AST-${Date.now()}`;
     return super.create(
       {
@@ -150,7 +170,14 @@ export class AssetsService extends BaseService<
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _userId: number,
   ): Promise<Asset> {
-    const record = await this.findOne(idOrSlug);
+    const record = await this.loadAsset(idOrSlug);
+
+    await this.assertCheckoutAllowed(
+      data.statusId ?? record.statusId,
+      data.checkedOutUserId === undefined
+        ? record.checkedOutUserId
+        : data.checkedOutUserId,
+    );
 
     return this.prisma.asset.update({
       where: { id: record.id },

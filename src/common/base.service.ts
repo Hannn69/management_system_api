@@ -2,9 +2,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
+import { assertNotInUse } from './in-use';
 
 export interface BaseQuery {
   page?: string | number;
@@ -116,7 +121,16 @@ export abstract class BaseService<T, CreateDto, UpdateDto> {
     userId: number,
     where: any = {},
   ): Promise<{ success: boolean }> {
-    await this.findOne(id, where);
+    const existing = (await this.findOne(id, where)) as {
+      name?: string | null;
+      assetTag?: string;
+    };
+    await assertNotInUse(
+      this.prisma,
+      this.modelName,
+      id,
+      existing.name ?? existing.assetTag,
+    );
     const model = (this.prisma as any)[this.modelName];
 
     await model.delete({

@@ -1,7 +1,10 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Permission, Role, RolePermission } from '@prisma/client';
-import { randomUUID } from 'crypto';
+import { Role, RolePermission } from '@prisma/client';
 
 @Injectable()
 export class RolesService {
@@ -120,7 +123,10 @@ export class RolesService {
    * Replace the users assigned to a role
    */
   async assignUsers(id: number, userIds: number[]) {
-    if (!Array.isArray(userIds) || userIds.some((userId) => !Number.isInteger(userId))) {
+    if (
+      !Array.isArray(userIds) ||
+      userIds.some((userId) => !Number.isInteger(userId))
+    ) {
       throw new BadRequestException('userIds must be an array of integers');
     }
 

@@ -357,8 +357,7 @@ async function main() {
   // ========== ASSETS ==========
   console.log("📦 Creating assets...");
   for (let i = 1; i <= 20; i++) {
-    await prisma.asset.create({
-      data: {
+    const assetData = {
         assetTag: `AST-${10000 + i}`,
         name: `Asset ${i}`,
         serial: `SN-${randomUUID().slice(0, 8).toUpperCase()}`,
@@ -367,9 +366,17 @@ async function main() {
         companyId: dbCompanies[i % dbCompanies.length].id,
         locationId: dbLocations[i % dbLocations.length].id,
         supplierId: dbSuppliers[i % dbSuppliers.length].id,
-        checkedOutUserId: dbUsers[i % dbUsers.length].id,
+        // Only "Deployed" assets are held by a user.
+        checkedOutUserId:
+          dbStatusLabels[i % dbStatusLabels.length].name === "Deployed"
+            ? dbUsers[i % dbUsers.length].id
+            : null,
         notes: `Sample asset ${i} for testing.`,
-      },
+    };
+    await prisma.asset.upsert({
+      where: { assetTag: assetData.assetTag },
+      update: {},
+      create: assetData,
     });
   }
   console.log(`✓ Created 20 assets`);
@@ -377,8 +384,7 @@ async function main() {
   // ========== TASKS ==========
   console.log("📋 Creating tasks...");
   for (let i = 1; i <= 20; i++) {
-    await prisma.task.create({
-      data: {
+    const taskData = {
         key: `TASK-${i}`,
         summary: `Maintenance task ${i}`,
         description: `Perform regular maintenance for asset bundle ${i}`,
@@ -389,14 +395,20 @@ async function main() {
         space: "Inventory",
         workType: "Maintenance",
         priority: "High",
-      },
+    };
+    await prisma.task.upsert({
+      where: { key: taskData.key },
+      update: {},
+      create: taskData,
     });
   }
   console.log(`✓ Created 20 tasks`);
 
   // ========== NOTIFICATIONS ==========
   console.log("🔔 Creating notifications...");
-  for (let i = 1; i <= 20; i++) {
+  // Notifications have no unique key, so only seed an empty table.
+  const notificationCount = await prisma.notification.count();
+  for (let i = 1; i <= 20 && notificationCount === 0; i++) {
     await prisma.notification.create({
       data: {
         userId: dbUsers[i % dbUsers.length].id,

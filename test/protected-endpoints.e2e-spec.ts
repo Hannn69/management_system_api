@@ -75,7 +75,9 @@ describe('Protected and custom endpoints (e2e)', () => {
   });
 
   it('GET /assets returns records', async () => {
-    const response = await request(app.getHttpServer()).get('/assets').expect(200);
+    const response = await request(app.getHttpServer())
+      .get('/assets')
+      .expect(200);
 
     expect(assetsService.findAll).toHaveBeenCalled();
     expect(response.body).toEqual({ records: [{ id: 1 }], total: 1 });
@@ -121,13 +123,18 @@ describe('Protected and custom endpoints (e2e)', () => {
     expect(response.body.record.assetTag).toBe('AST-1');
   });
 
-  it('PATCH /assets/:idOrSlug returns 401 without req.user', async () => {
+  // Rejecting anonymous requests is the global JwtAuthGuard's job (see auth-guard.e2e-spec.ts).
+  it('PATCH /assets/:idOrSlug falls back to the dev admin when no user is attached', async () => {
     await request(app.getHttpServer())
       .patch('/assets/asset-1')
       .send({ name: 'Updated' })
-      .expect(401);
+      .expect(200);
 
-    expect(assetsService.update).not.toHaveBeenCalled();
+    expect(assetsService.update).toHaveBeenCalledWith(
+      'asset-1',
+      { name: 'Updated' },
+      1,
+    );
   });
 
   it('PATCH /assets/:idOrSlug updates when req.user exists', async () => {
@@ -155,7 +162,9 @@ describe('Protected and custom endpoints (e2e)', () => {
   });
 
   it('GET /users returns records', async () => {
-    const response = await request(app.getHttpServer()).get('/users').expect(200);
+    const response = await request(app.getHttpServer())
+      .get('/users')
+      .expect(200);
 
     expect(usersService.findAll).toHaveBeenCalled();
     expect(response.body.records).toHaveLength(1);
@@ -182,7 +191,9 @@ describe('Protected and custom endpoints (e2e)', () => {
       },
       55,
     );
-    expect(response.body).toEqual({ id: 1, email: 'new@example.com' });
+    expect(response.body).toEqual({
+      record: { id: 1, email: 'new@example.com' },
+    });
   });
 
   it('GET /dashboard/summary returns summary for authenticated user', async () => {

@@ -6,12 +6,11 @@ import {
   Req,
   Res,
   UnauthorizedException,
-  UseGuards,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { AuthPayloadDto } from './dto/auth-payload.dto';
+import { Public } from './public.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -30,6 +29,7 @@ export class AuthController {
     return { user };
   }
 
+  @Public()
   @Post('signin')
   async signIn(
     @Body() body: AuthPayloadDto,
@@ -43,6 +43,7 @@ export class AuthController {
     return { user };
   }
 
+  @Public()
   @Post('refresh')
   async refresh(
     @Req() req: Request,
@@ -59,6 +60,7 @@ export class AuthController {
     return { user };
   }
 
+  @Public()
   @Post('logout')
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const cookies = req.cookies as Record<string, string> | undefined;
@@ -83,7 +85,6 @@ export class AuthController {
     return { success: true };
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Get('me')
   me(@Req() req: Request) {
     return { user: req.user };

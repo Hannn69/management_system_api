@@ -35,6 +35,7 @@ describe('AuthService', () => {
     );
     expect(prisma.user.findUnique).toHaveBeenCalledWith({
       where: { email: 'missing@example.com' },
+      omit: { passwordHash: false },
     });
   });
 

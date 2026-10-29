@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Patch,
+  Delete,
+} from '@nestjs/common';
 import { RolesService } from './roles.service';
 
 @Controller('roles')
@@ -6,9 +14,7 @@ export class RolesController {
   constructor(private rolesService: RolesService) {}
 
   @Post()
-  async createRole(
-    @Body() data: { name: string; description?: string },
-  ) {
+  async createRole(@Body() data: { name: string; description?: string }) {
     return this.rolesService.createRole(data);
   }
 
@@ -57,7 +63,13 @@ export class RolesController {
   async updateRolePermission(
     @Param('roleId') roleId: string,
     @Param('permissionId') permissionId: string,
-    @Body() data: { create?: boolean; read?: boolean; update?: boolean; delete?: boolean },
+    @Body()
+    data: {
+      create?: boolean;
+      read?: boolean;
+      update?: boolean;
+      delete?: boolean;
+    },
   ) {
     return this.rolesService.updateRolePermission(
       parseInt(roleId),
