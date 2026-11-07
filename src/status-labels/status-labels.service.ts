@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { StatusLabel, Prisma } from '@prisma/client';
 import { BaseService, BaseQuery } from '../common/base.service';
+import { buildFilters } from '../common/filters';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSettingDto, UpdateSettingDto } from '../common/dto/settings.dto';
 
@@ -25,6 +26,8 @@ export class StatusLabelsService extends BaseService<
     if (search) {
       where.name = { contains: search };
     }
+
+    Object.assign(where, buildFilters(query, { type: 'string' }));
 
     const [records, total] = await Promise.all([
       this.prisma.statusLabel.findMany({

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Category, Prisma } from '@prisma/client';
 import { BaseService, BaseQuery } from '../common/base.service';
+import { buildFilters } from '../common/filters';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCategoryDto, UpdateCategoryDto } from '../common/dto/entity.dto';
 
@@ -25,6 +26,8 @@ export class CategoriesService extends BaseService<
     if (search) {
       where.name = { contains: search };
     }
+
+    Object.assign(where, buildFilters(query, { type: 'string' }));
 
     const [records, total] = await Promise.all([
       this.prisma.category.findMany({

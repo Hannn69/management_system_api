@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
+import { AasLookupDto } from './dto/aas-lookup.dto';
 import { AuthPayloadDto } from './dto/auth-payload.dto';
 import { Public } from './public.decorator';
 
@@ -41,6 +42,12 @@ export class AuthController {
     );
     this.setAuthCookies(res, tokens.accessToken, tokens.refreshToken, tokens);
     return { user };
+  }
+
+  @Public()
+  @Post('aas-lookup')
+  async aasLookup(@Body() body: AasLookupDto) {
+    return this.authService.findUserForAas(body.assertion);
   }
 
   @Public()

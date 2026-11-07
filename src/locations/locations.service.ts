@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Location, Prisma } from '@prisma/client';
 import { BaseService, BaseQuery } from '../common/base.service';
+import { buildFilters } from '../common/filters';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateLocationDto, UpdateLocationDto } from '../common/dto/entity.dto';
 
@@ -28,6 +29,11 @@ export class LocationsService extends BaseService<
         { city: { contains: search } },
       ];
     }
+
+    Object.assign(
+      where,
+      buildFilters(query, { companyId: 'int', parentId: 'int' }),
+    );
 
     const [records, total] = await Promise.all([
       this.prisma.location.findMany({

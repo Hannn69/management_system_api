@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -86,6 +87,51 @@ export class AuthService {
         displayName: user.displayName,
       },
       tokens,
+    };
+  }
+
+  /**
+   * Looks up the local account for a user the web app has already verified with the AAS identity
+   * provider. The web app proves that with a short-lived JWT signed with the shared JWT_SECRET, so
+   * this endpoint cannot be used to read accounts by email without that secret.
+   */
+  async findUserForAas(assertion: string) {
+    const secret = this.configService.get<string>('JWT_SECRET');
+    if (!secret) {
+      throw new UnauthorizedException('AAS sign-in is not configured.');
+    }
+
+    let payload: { purpose?: string; email?: string };
+    try {
+      payload = await this.jwtService.verifyAsync(assertion, { secret });
+    } catch {
+      throw new UnauthorizedException('Invalid or expired AAS assertion.');
+    }
+    if (payload.purpose !== 'aas-signin' || !payload.email) {
+      throw new UnauthorizedException('Invalid or expired AAS assertion.');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { email: payload.email.trim().toLowerCase() },
+    });
+    if (!user) {
+      throw new ForbiddenException(
+        'No local account found for this AAS email. Ask an admin to create your account first.',
+      );
+    }
+    if (!user.loginEnabled) {
+      throw new ForbiddenException('This account is disabled.');
+    }
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        displayName: user.displayName,
+      },
     };
   }
 

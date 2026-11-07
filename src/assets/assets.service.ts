@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Asset, Prisma } from '@prisma/client';
 import { BaseService, BaseQuery } from '../common/base.service';
+import { buildFilters } from '../common/filters';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAssetDto, UpdateAssetDto } from './dto/assets.dto';
 
@@ -92,6 +93,21 @@ export class AssetsService extends BaseService<
       } else if (categoryFilter === 'checkin') {
         where.expectedCheckin = { lt: new Date() };
       }
+    }
+
+    Object.assign(
+      where,
+      buildFilters(query, {
+        statusId: 'int',
+        locationId: 'int',
+        companyId: 'int',
+        supplierId: 'int',
+        modelId: 'int',
+      }),
+    );
+    const categoryId = Number(query.categoryId);
+    if (query.categoryId && Number.isInteger(categoryId)) {
+      where.model = { categoryId };
     }
 
     const [records, total] = await Promise.all([

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Company, Prisma } from '@prisma/client';
 import { BaseService, BaseQuery } from '../common/base.service';
+import { buildFilters } from '../common/filters';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCompanyDto, UpdateCompanyDto } from '../common/dto/entity.dto';
 
@@ -29,6 +30,8 @@ export class CompaniesService extends BaseService<
 
     const sort = query.sort || 'createdAt';
     const order = (query.order as 'asc' | 'desc') || 'desc';
+
+    Object.assign(where, buildFilters(query, {}));
 
     const [records, total] = await Promise.all([
       this.prisma.company.findMany({
