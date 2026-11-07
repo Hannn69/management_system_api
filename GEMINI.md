@@ -12,7 +12,6 @@ These instructions are scoped to the `management_system_api/` directory and gove
 ### 2. Database Integrity
 - **Migrations**: Never modify `prisma/migrations` manually. Always use `prisma migrate dev`.
 - **Typing**: Use generated Prisma types for internal data handling.
-- **Seeding**: Maintain `prisma/seed.ts` to ensure a consistent local development environment.
 
 ### 3. API Standards
 - **RESTful Endpoints**: Follow standard HTTP methods (GET, POST, PATCH, DELETE).

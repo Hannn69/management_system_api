@@ -18,6 +18,8 @@ export interface BaseQuery {
   order?: 'asc' | 'desc';
   search?: string;
   where?: any;
+  // Extra list filters (statusId, categoryId, createdFrom, ...) are read by buildFilters().
+  [key: string]: any;
 }
 
 @Injectable()

@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { User, Prisma } from '@prisma/client';
 import { BaseService, BaseQuery } from '../common/base.service';
+import { buildFilters } from '../common/filters';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { assertNotInUse } from '../common/in-use';
@@ -48,6 +49,16 @@ export class UsersService extends BaseService<User, any, any> {
           ],
         }
       : {};
+
+    Object.assign(
+      where,
+      buildFilters(query, {
+        roleId: 'int',
+        companyId: 'int',
+        locationId: 'int',
+        loginEnabled: 'bool',
+      }),
+    );
 
     const [records, total] = await Promise.all([
       this.prisma.user.findMany({

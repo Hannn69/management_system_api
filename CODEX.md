@@ -66,7 +66,6 @@ pnpm test
 pnpm test:e2e
 pnpm db:generate
 pnpm db:migrate
-pnpm db:seed
 ```
 
 ## Codebase Structure
@@ -78,7 +77,6 @@ pnpm db:seed
 - `src/generated/`: generated Prisma client artifacts
 - `prisma/schema.prisma`: database schema
 - `prisma/migrations/`: migration history
-- `prisma/seed.ts`: seed script
 - `test/`: e2e coverage and test helpers
 - `dist/`: compiled output
 

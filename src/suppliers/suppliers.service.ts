@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Supplier, Prisma } from '@prisma/client';
 import { BaseService, BaseQuery } from '../common/base.service';
+import { buildFilters } from '../common/filters';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSettingDto, UpdateSettingDto } from '../common/dto/settings.dto';
 
@@ -28,6 +29,8 @@ export class SuppliersService extends BaseService<
         { city: { contains: search } },
       ];
     }
+
+    Object.assign(where, buildFilters(query, {}));
 
     const [records, total] = await Promise.all([
       this.prisma.supplier.findMany({

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Department, Prisma } from '@prisma/client';
 import { BaseService, BaseQuery } from '../common/base.service';
+import { buildFilters } from '../common/filters';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateDepartmentDto,
@@ -28,6 +29,11 @@ export class DepartmentsService extends BaseService<
     if (search) {
       where.name = { contains: search };
     }
+
+    Object.assign(
+      where,
+      buildFilters(query, { companyId: 'int', locationId: 'int' }),
+    );
 
     const [records, total] = await Promise.all([
       this.prisma.department.findMany({
